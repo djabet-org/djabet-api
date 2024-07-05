@@ -30,7 +30,7 @@ import hello.repository.DoubleRepository;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
 @TestPropertySource(
   locations = "classpath:application-integrationtest.properties")
-public class DoubleControllerIT
+public class CrashControllerIT
  {
 
   @LocalServerPort
@@ -40,37 +40,37 @@ public class DoubleControllerIT
 	private TestRestTemplate restTemplate;
 
   @Autowired
-  private DoubleRepository repository;
+  private CrashRepository repository;
 
-      private Roll roll1 = Roll.builder()
-      .color("red")
-      .id(1L)
-      .created(Instant.now())
-      .platform("blaze")
-      .roll(5)
-      .build();
+      // private Roll roll1 = Roll.builder()
+      // .color("red")
+      // .id(1L)
+      // .created(Instant.now())
+      // .platform("blaze")
+      // .roll(5)
+      // .build();
       
-      private Roll roll2 = Roll.builder()
-      .color("black")
-      .id(2L)
-      .created(Instant.now().plusSeconds(30))
-      .platform("betfiery")
-      .roll(6)
-      .build();
+      // private Roll roll2 = Roll.builder()
+      // .color("black")
+      // .id(2L)
+      // .created(Instant.now().plusSeconds(30))
+      // .platform("betfiery")
+      // .roll(6)
+      // .build();
 
-      private Roll roll3 = Roll.builder()
-      .color("black")
-      .id(3L)
-      .created(Instant.now().plusSeconds(60))
-      .platform("blaze")
-      .roll(7)
-      .build();
+      // private Roll roll3 = Roll.builder()
+      // .color("black")
+      // .id(3L)
+      // .created(Instant.now().plusSeconds(60))
+      // .platform("blaze")
+      // .roll(7)
+      // .build();
 
       @BeforeEach
       public void setup() {
-        saveRoll(roll1);
-        saveRoll(roll2);
-        saveRoll(roll3);
+        // saveRoll(roll1);
+        // saveRoll(roll2);
+        // saveRoll(roll3);
       }
 
     @Test
