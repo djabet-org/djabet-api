@@ -25,12 +25,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import hello.repository.DoubleRepository;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = Application.class)
 @TestPropertySource(
   locations = "classpath:application-integrationtest.properties")
-public class CrashControllerIT
+public class DoubleControllerIT
  {
 
   @LocalServerPort
@@ -39,38 +38,35 @@ public class CrashControllerIT
 	@Autowired
 	private TestRestTemplate restTemplate;
 
-  @Autowired
-  private CrashRepository repository;
-
-      // private Roll roll1 = Roll.builder()
-      // .color("red")
-      // .id(1L)
-      // .created(Instant.now())
-      // .platform("blaze")
-      // .roll(5)
-      // .build();
+      private Roll roll1 = Roll.builder()
+      .color("red")
+      .id(1L)
+      .created(Instant.now())
+      .platform("blaze")
+      .roll(5)
+      .build();
       
-      // private Roll roll2 = Roll.builder()
-      // .color("black")
-      // .id(2L)
-      // .created(Instant.now().plusSeconds(30))
-      // .platform("betfiery")
-      // .roll(6)
-      // .build();
+      private Roll roll2 = Roll.builder()
+      .color("black")
+      .id(2L)
+      .created(Instant.now().plusSeconds(30))
+      .platform("betfiery")
+      .roll(6)
+      .build();
 
-      // private Roll roll3 = Roll.builder()
-      // .color("black")
-      // .id(3L)
-      // .created(Instant.now().plusSeconds(60))
-      // .platform("blaze")
-      // .roll(7)
-      // .build();
+      private Roll roll3 = Roll.builder()
+      .color("black")
+      .id(3L)
+      .created(Instant.now().plusSeconds(60))
+      .platform("blaze")
+      .roll(7)
+      .build();
 
       @BeforeEach
       public void setup() {
-        // saveRoll(roll1);
-        // saveRoll(roll2);
-        // saveRoll(roll3);
+        saveRoll(roll1);
+        saveRoll(roll2);
+        saveRoll(roll3);
       }
 
     @Test
@@ -90,15 +86,15 @@ public class CrashControllerIT
 
     @Test
     public void shouldGetRollsFilter() throws JsonMappingException, JsonProcessingException {
-      ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/api/double/rolls?platform=blaze&qtd=2&sort=desc", String.class);
+      ResponseEntity<String> response = this.restTemplate.getForEntity("http://localhost:" + port + "/api/double?platform=blaze&qtd=2&sort=desc", String.class);
       List<Roll> rolls = new ObjectMapper().readValue(response.getBody(), new TypeReference<List<Roll>>(){});
       System.out.println("hey "+rolls);
 
       assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
       assertEquals(2, rolls.size());
-      assertEquals(10, rolls.get(0).getId());
+      assertEquals(3, rolls.get(0).getId());
       assertEquals("blaze", rolls.get(0).getPlatform());
-      assertEquals(8, rolls.get(1).getId());
+      assertEquals(1, rolls.get(1).getId());
       assertEquals("blaze", rolls.get(1).getPlatform());
     }
 
@@ -115,12 +111,11 @@ public void throw400BadRequest_WhenNull() {
 
 @AfterEach
 public void teardown() {
-  repository.deleteAll();
 }
 
 private ResponseEntity<String> saveRoll(Roll roll) {
        HttpEntity<Roll> request = new HttpEntity<>(roll, null);
-      return this.restTemplate.postForEntity("http://localhost:" + port + "/api/double/save", request, String.class);
+      return this.restTemplate.postForEntity("http://localhost:" + port + "/api/double", request, String.class);
 
 }
 }
