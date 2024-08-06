@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +43,14 @@ public void shouldCallServiceForCreation() {
 public void shouldCallGetRollsService() throws JsonProcessingException {
     when(service.fetch(2, "asc", "blaze")).thenReturn(
         List.of(
-            Roll.builder().created(Instant.now()).build(),
-            Roll.builder().created(Instant.now().plusSeconds(60)).build()
+            Roll.builder().createdTime(Instant.now().toEpochMilli()).build(),
+            Roll.builder().createdTime(Instant.now().plusSeconds(60).toEpochMilli()).build()
         ));
 
-    controller.fetchRolls(2, "asc", "blaze");
+    controller.fetchRolls(
+        Optional.of(2),
+        Optional.of("asc"),
+        Optional.of("blaze"));
 
     verify(service).fetch(2,"asc", "blaze");
 }

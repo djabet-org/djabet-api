@@ -45,8 +45,8 @@ public void testSave() {
 
 @Test
 public void shouldCallFetchRolls() {
-    Roll roll1 = Roll.builder().id(1L).created(Instant.now()).build();
-    Roll roll2 = Roll.builder().id(2L).created(Instant.now().plusSeconds(60)).build();
+    Roll roll1 = Roll.builder().id(1L).createdTime(Instant.now().toEpochMilli()).build();
+    Roll roll2 = Roll.builder().id(2L).createdTime(Instant.now().plusSeconds(60).toEpochMilli()).build();
 
     when(repository.findByPlatform(anyString(), any(PageRequest.class))).thenReturn(new PageImpl<Roll>(List.of(roll1, roll2)));
 

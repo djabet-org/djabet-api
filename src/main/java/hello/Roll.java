@@ -41,16 +41,8 @@ public class Roll {
     private String platform;
     @NotNull(message = "roll is mandatory.")
     private Integer roll;
-    @JsonIgnore
-    private Instant created = ZonedDateTime.now(ZoneId.of("America/Recife")).toInstant();
-    @Transient
-    private String createdTime = created.toString();
+    private long createdTime;
     private float total_red_money = 0;
     private float total_white_money = 0;
     private float total_black_money = 0;
-
-    @Transient
-    @JsonProperty
-    private long createdTimeAsTimestamp = created.toEpochMilli();
-
 }

@@ -41,7 +41,7 @@ public class DoubleControllerIT
       private Roll roll1 = Roll.builder()
       .color("red")
       .id(1L)
-      .created(Instant.now())
+      .createdTime(Instant.now().toEpochMilli())
       .platform("blaze")
       .roll(5)
       .build();
@@ -49,7 +49,7 @@ public class DoubleControllerIT
       private Roll roll2 = Roll.builder()
       .color("black")
       .id(2L)
-      .created(Instant.now().plusSeconds(30))
+      .createdTime(Instant.now().plusSeconds(30).toEpochMilli())
       .platform("betfiery")
       .roll(6)
       .build();
@@ -57,7 +57,7 @@ public class DoubleControllerIT
       private Roll roll3 = Roll.builder()
       .color("black")
       .id(3L)
-      .created(Instant.now().plusSeconds(60))
+      .createdTime(Instant.now().plusSeconds(60).toEpochMilli())
       .platform("blaze")
       .roll(7)
       .build();
