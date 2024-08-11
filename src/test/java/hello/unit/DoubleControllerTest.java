@@ -1,5 +1,6 @@
 package hello.unit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import hello.DoubleController;
 import hello.Roll;
+import hello.data.CoresPercentualDTO;
+import hello.data.DashboardDTO;
 import hello.service.DoubleService;
 import hello.service.SseService;
 
@@ -40,19 +43,16 @@ public void shouldCallServiceForCreation() {
 }
 
 @Test
-public void shouldCallGetRollsService() throws JsonProcessingException {
-    when(service.fetch(2, "asc", "blaze")).thenReturn(
-        List.of(
-            Roll.builder().createdTime(Instant.now().toEpochMilli()).build(),
-            Roll.builder().createdTime(Instant.now().plusSeconds(60).toEpochMilli()).build()
-        ));
+public void shouldCallGetDashboardContagemCores() throws JsonProcessingException {
+    when(service.calculateCoresPercentual(2)).thenReturn(
+        CoresPercentualDTO.builder().red(1).black(2).white(3).build());
 
-    controller.fetchRolls(
-        Optional.of(2),
-        Optional.of("asc"),
-        Optional.of("blaze"));
-
-    verify(service).fetch(2,"asc", "blaze");
+    DashboardDTO result = controller.getDashboard(Optional.of(2));
+    
+    assertEquals(1, result.getCoresPercentualDTO().getRed());
+    assertEquals(2, result.getCoresPercentualDTO().getBlack());
+    assertEquals(3, result.getCoresPercentualDTO().getWhite());
+    verify(service).calculateCoresPercentual(2);
 }
 
 @Test

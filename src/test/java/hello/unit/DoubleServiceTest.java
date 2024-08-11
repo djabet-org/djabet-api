@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import hello.Roll;
+import hello.data.CoresPercentualDTO;
 import hello.repository.DoubleRepository;
 import hello.service.DoubleService;
 
@@ -53,4 +54,23 @@ public void shouldCallFetchRolls() {
     List<Roll> rolls = service.fetch(2, "asc", "platform");
     assertEquals(2, rolls.size());
 }
+
+@Test
+public void shouldCalculatePercentualCores() {
+    List<Roll> rolls = List.of(
+        Roll.builder().id(1L).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(2L).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(3L).color("white").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(4L).color("black").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(5L).color("black").createdTime(Instant.now().toEpochMilli()).build()
+    );
+
+    service.setRolls(rolls);
+
+    CoresPercentualDTO result = service.calculateCoresPercentual(5);
+    assertEquals(2, result.getRed());
+    assertEquals(2, result.getBlack());
+    assertEquals(1, result.getWhite());
+}
+
 }

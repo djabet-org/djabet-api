@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import hello.data.DashboardDTO;
 import hello.service.DoubleService;
 import hello.service.SseService;
 
@@ -72,7 +73,7 @@ public class DoubleController {
             @RequestParam("platform") Optional<String> platform) throws JsonProcessingException {
         try {
             // List<Roll> rolls = service.fetch(qtd, sort, platform);
-            String rollsAsJson = new ObjectMapper().writeValueAsString(rolls);
+            String rollsAsJson = new ObjectMapper().writeValueAsString(service.getRolls());
             return ResponseEntity.ok().body(rollsAsJson);
         } catch (Exception e) {
             // TODO: handle exception
@@ -85,13 +86,23 @@ public class DoubleController {
     public ResponseEntity upload(@RequestPart("file") MultipartFile file) {
         _log.info("File received: " + file);
         try {
-            rolls = service.upload(file);
+            service.upload(file);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             // TODO: handle exception
             return ResponseEntity.badRequest().build();
         }
 
+    }
+
+    @CrossOrigin
+    @GetMapping(path = "/api/double/dashboard", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DashboardDTO getDashboard(Optional<Integer> qtd) {
+        int qtdvalue = qtd.orElse(3000);
+
+        return DashboardDTO.builder()
+            .coresPercentualDTO(service.calculateCoresPercentual(qtdvalue))
+            .build();
     }
 
 }

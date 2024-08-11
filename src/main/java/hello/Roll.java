@@ -42,7 +42,4 @@ public class Roll {
     @NotNull(message = "roll is mandatory.")
     private Integer roll;
     private long createdTime;
-    private float total_red_money = 0;
-    private float total_white_money = 0;
-    private float total_black_money = 0;
 }
