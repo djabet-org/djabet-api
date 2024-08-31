@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,12 +66,34 @@ public void shouldCalculatePercentualCores() {
         Roll.builder().id(5L).color("black").createdTime(Instant.now().toEpochMilli()).build()
     );
 
-    service.setRolls(rolls);
-
-    CoresPercentualDTO result = service.calculateCoresPercentual(5);
+    CoresPercentualDTO result = service.calculateCoresPercentual(rolls);
     assertEquals(2, result.getRed());
     assertEquals(2, result.getBlack());
     assertEquals(1, result.getWhite());
 }
 
+@Test
+public void calcularNumerosCoresProbabilidades() {
+
+    List<Roll> rolls = List.of(
+        Roll.builder().id(1L).roll(1).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(2L).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(3L).color("white").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(4L).color("black").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(1L).roll(1).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(5L).color("black").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(5L).color("black").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(5L).color("black").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(1L).roll(1).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(2L).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(2L).color("red").createdTime(Instant.now().toEpochMilli()).build(),
+        Roll.builder().id(2L).color("black").createdTime(Instant.now().toEpochMilli()).build()
+    );
+
+    Map<Integer, int[]> resultado = service.calculateNumerosProximaCorProbabilidade(rolls);
+
+    assertEquals(resultado.get(1)[1], 0.66);
+    assertEquals(resultado.get(1)[0], 1);
+    assertEquals(resultado.get(1)[3], 0.33);
+}
 }

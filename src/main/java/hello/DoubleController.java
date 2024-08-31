@@ -72,8 +72,8 @@ public class DoubleController {
             @RequestParam("sort") Optional<String> sort,
             @RequestParam("platform") Optional<String> platform) throws JsonProcessingException {
         try {
-            // List<Roll> rolls = service.fetch(qtd, sort, platform);
-            String rollsAsJson = new ObjectMapper().writeValueAsString(service.getRolls());
+            rolls = service.fetch(qtd.orElse(300), sort.orElse("asc"), platform.orElse("blaze"));
+            String rollsAsJson = new ObjectMapper().writeValueAsString(rolls);
             return ResponseEntity.ok().body(rollsAsJson);
         } catch (Exception e) {
             // TODO: handle exception
@@ -101,7 +101,8 @@ public class DoubleController {
         int qtdvalue = qtd.orElse(3000);
 
         return DashboardDTO.builder()
-            .coresPercentualDTO(service.calculateCoresPercentual(qtdvalue))
+            .coresPercentualDTO(service.calculateCoresPercentual(this.rolls))
+            .numerosProximaCorProbabilidade(service.calculateNumerosProximaCorProbabilidade(rolls))
             .build();
     }
 

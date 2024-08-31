@@ -1,6 +1,7 @@
 package hello.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,7 +45,7 @@ public void shouldCallServiceForCreation() {
 
 @Test
 public void shouldCallGetDashboardContagemCores() throws JsonProcessingException {
-    when(service.calculateCoresPercentual(2)).thenReturn(
+    when(service.calculateCoresPercentual(anyList())).thenReturn(
         CoresPercentualDTO.builder().red(1).black(2).white(3).build());
 
     DashboardDTO result = controller.getDashboard(Optional.of(2));
@@ -52,7 +53,7 @@ public void shouldCallGetDashboardContagemCores() throws JsonProcessingException
     assertEquals(1, result.getCoresPercentualDTO().getRed());
     assertEquals(2, result.getCoresPercentualDTO().getBlack());
     assertEquals(3, result.getCoresPercentualDTO().getWhite());
-    verify(service).calculateCoresPercentual(2);
+    verify(service).calculateCoresPercentual(anyList());
 }
 
 @Test
