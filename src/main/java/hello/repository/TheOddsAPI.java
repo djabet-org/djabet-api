@@ -203,6 +203,6 @@ public class TheOddsAPI {
     }
 
     public List<Partida> getUpcomingPartidas() {
-        return Collections.emptyList();
+        return getUpcomingOdds().stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
     }
 }
