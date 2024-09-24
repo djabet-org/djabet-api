@@ -8,29 +8,34 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import hello.Constants;
-import hello.service.Helper;
 import hello.dto.Bookmaker;
 import hello.dto.Market;
 import hello.dto.Outcome;
 import hello.dto.Partida;
 import hello.dto.PartidaOdds;
 import hello.dto.Torneio;
+import hello.service.Helper;
 import hello.service.HttpClient;
 
+@Service
 public class TheOddsAPI {
 
+    @Value("${theodds.api.key}")
+    private String apiKey;
+
     private final HttpClient _httpClient = new HttpClient();
-    // private final String API_KEY = "2d7bea987aec383d51179e9633a29983";
-    private final String API_KEY = "a3cfc0038d3dba15acd90b9805d1c48c";//mendigodablazeee
     private final String bookmakers = _getSelectedBookmakers();
     private final String SOCCER_SPORT = "soccer_brazil_campeonato";
         private final static String MARKETS = "h2h,spreads,totals";
 
     public List<Torneio> getAllTorneios() throws IOException {
-        String torneiosURL = String.format("https://api.the-odds-api.com/v4/sports?apiKey=%s", API_KEY);
+        String torneiosURL = String.format("https://api.the-odds-api.com/v4/sports?apiKey=%s", apiKey);
         return _toStream(_httpClient.get(torneiosURL))
                 // .peek(System.out::println)
                 .map(this::_toTorneio)
@@ -70,7 +75,7 @@ public class TheOddsAPI {
     public List<Partida> getPartidas(String torneio) {
         try {
             String eventsURL = String.format("https://api.the-odds-api.com/v4/sports/%s/events?apiKey=%s&all=true", torneio,
-                    API_KEY);
+                    apiKey);
             return _toStream(_httpClient.get(eventsURL))
                     // .peek(System.out::println)
                     .map(this::_toPartida)
@@ -89,7 +94,7 @@ public class TheOddsAPI {
         try {
             String url = String.format(
                     "https://api.the-odds-api.com/v4/sports/%s/events/%s/odds?apiKey=%s&markets=%s&regions=eu,uk",
-                    partida.getSportKey(), partida.getId(), API_KEY, markets, bookmakers);
+                    partida.getSportKey(), partida.getId(), apiKey, markets, bookmakers);
 
             JsonNode odd = _httpClient.get(url);
             // System.out.println(odd.toPrettyString());
@@ -102,9 +107,10 @@ public class TheOddsAPI {
 
     public List<PartidaOdds> getUpcomingOdds() {
         try {
+            System.out.println("creu "+apiKey);
             String url = String.format(
                     "https://api.the-odds-api.com/v4/sports/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk",
-                    API_KEY, MARKETS);
+                    apiKey, MARKETS);
 
             JsonNode odds = _httpClient.get(url);
             System.out.println(odds.toPrettyString());
