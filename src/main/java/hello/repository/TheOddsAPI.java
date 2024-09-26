@@ -29,12 +29,18 @@ public class TheOddsAPI {
     @Value("${theodds.api.key}")
     private String apiKey;
 
+    @Value("${theodds.api.base.url}")
+    private String theOddsApiBaseUrl;
+
     private final HttpClient _httpClient = new HttpClient();
+
     private final String bookmakers = _getSelectedBookmakers();
+
     private final String SOCCER_SPORT = "soccer_brazil_campeonato";
         private final static String MARKETS = "h2h,spreads,totals";
 
     public List<Torneio> getAllTorneios() throws IOException {
+
         String torneiosURL = String.format("https://api.the-odds-api.com/v4/sports?apiKey=%s", apiKey);
         return _toStream(_httpClient.get(torneiosURL))
                 // .peek(System.out::println)

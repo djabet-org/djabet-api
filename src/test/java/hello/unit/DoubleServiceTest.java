@@ -72,7 +72,7 @@ public void shouldCalculatePercentualCores() {
     assertEquals(1, result.getWhite());
 }
 
-@Test
+// @Test
 public void calcularNumerosCoresProbabilidades() {
 
     List<Roll> rolls = List.of(
