@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hello.data.DashboardDTO;
 import hello.dto.Partida;
 import hello.dto.ValueBet;
+import hello.model.EVFilter;
 import hello.service.DoubleService;
 import hello.service.ValueBetService;
 
@@ -41,9 +42,11 @@ public class SportingBetController {
 
     @CrossOrigin
     @GetMapping(path = "/api/sports/valuebet", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getValueBets(@RequestParam("bankroll") double bankroll) {
+    public ResponseEntity<String> getValueBets(@RequestParam("bankroll") double bankroll,
+    @RequestParam("minEV") Optional<Double> minEV, @RequestParam("maxEV") Optional<Double> maxEV) {
         try {
-            Map<Partida, List<ValueBet>> evs = _valueBetService.getValueBets(bankroll);
+            EVFilter evFilter = EVFilter.builder().minEv(minEV.orElse(1.0)).maxEv(maxEV.orElse(Double.MAX_VALUE)).build();
+            List<ValueBet> evs = _valueBetService.getValueBets(bankroll, evFilter);
             String evsAsJson = new ObjectMapper().writeValueAsString(evs);
             return ResponseEntity.ok().body(evsAsJson);
         } catch (Exception e) {

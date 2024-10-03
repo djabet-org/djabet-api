@@ -1,4 +1,4 @@
-package hello.repository;
+package hello.infra;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -31,6 +33,9 @@ public class TheOddsAPI {
 
     @Value("${theodds.api.base.url}")
     private String theOddsApiBaseUrl;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     private final HttpClient _httpClient = new HttpClient();
 
@@ -84,7 +89,7 @@ public class TheOddsAPI {
                     apiKey);
             return _toStream(_httpClient.get(eventsURL))
                     // .peek(System.out::println)
-                    .map(this::_toPartida)
+                    .map( node -> new TheOddsAPIPartidaAdapter().adapt(node))
                     .filter( partida -> Helper.happensInTwoDays(partida.getHorario()))
                     .collect(Collectors.toList());
         } catch (Exception e) {
@@ -112,24 +117,18 @@ public class TheOddsAPI {
     }
 
     public List<PartidaOdds> getUpcomingOdds() {
-        try {
-            System.out.println("creu "+apiKey);
             String url = String.format(
-                    "https://api.the-odds-api.com/v4/sports/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk",
-                    apiKey, MARKETS);
+                    "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk",
+                    theOddsApiBaseUrl, apiKey, MARKETS);
 
-            JsonNode odds = _httpClient.get(url);
-            System.out.println(odds.toPrettyString());
+            JsonNode odds = restTemplate.getForObject(url, JsonNode.class);
+            // System.out.println(odds.toPrettyString());
             return StreamSupport.stream(odds.spliterator(), false).map(this::_toPartidaOdds).collect(Collectors.toList());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
     }
 
     private PartidaOdds _toPartidaOdds(JsonNode odd) {
         return PartidaOdds.builder()
-                .partida(_toPartida(odd))
+                .partida( new TheOddsAPIPartidaAdapter().adapt(odd))
                 .bookmakers(_toStream(odd.get("bookmakers")).map(this::_toBookmaker)
                         .collect(Collectors.toList()))
                 .build();
@@ -150,19 +149,6 @@ public class TheOddsAPI {
                 // "betway",
                 "pinnacle",
                 "onexbet").stream().collect(Collectors.joining(","));
-    }
-
-    private Partida _toPartida(JsonNode partidaJsonNode) {
-        return Partida.builder()
-                .id(partidaJsonNode.get("id").asText())
-                .name(partidaJsonNode.get("home_team").asText() + " vs " +
-                        partidaJsonNode.get("away_team").asText())
-                .sportKey(partidaJsonNode.get("sport_key").asText())
-                .torneio(partidaJsonNode.get("sport_title").asText())
-                .awayTeam(partidaJsonNode.get("away_team").asText())
-                .homeTeam(partidaJsonNode.get("home_team").asText())
-                .horario(partidaJsonNode.get("commence_time").asText())
-                .build();
     }
 
     private Torneio _toTorneio(JsonNode torneioNode) {

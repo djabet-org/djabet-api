@@ -18,7 +18,8 @@ import hello.dto.Outcome;
 import hello.dto.Partida;
 import hello.dto.PartidaOdds;
 import hello.dto.ValueBet;
-import hello.repository.TheOddsAPI;
+import hello.infra.TheOddsAPI;
+import hello.model.EVFilter;
 
 @Service
 public class ValueBetService {
@@ -32,12 +33,13 @@ public class ValueBetService {
 
     private Logger _log = Logger.getLogger(getClass().getName());
 
-    public Map<Partida, List<ValueBet>> getValueBets(double bankroll) {
+    public List<ValueBet> getValueBets(double bankroll, EVFilter evFilter) {
         return api.getUpcomingPartidas().stream()
             .map(partida -> api.getOdds(partida, "spreads,totals"))
             .filter(Objects::nonNull)
             .flatMap(partidaOdd -> _calculateEVs(bankroll, _getOdds(partidaOdd)).stream())
-            .collect(Collectors.groupingBy(ValueBet::getPartida));
+            .filter(valueBet -> valueBet.getEv() * 100 >= evFilter.getMinEv() && valueBet.getEv() * 100 <= evFilter.getMaxEv() )
+            .collect(Collectors.toList());
     }
 
 
@@ -58,7 +60,6 @@ public class ValueBetService {
                 .map(marketOdd -> _toEV(bankroll, marketOdd, baseProbabilityMap))
                 .filter(Objects::nonNull)
                 .filter(valueBet -> !valueBet.getBookmaker().equals("pinnacle"))
-                .filter(valueBet -> valueBet.getEv() * 100 > 1)
                 // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
                 .filter(valueBet -> Helper.happensInTwoDays(valueBet.getPartida().getHorario()))
                 .filter(valuebet -> !Helper.getExcludedBookmakers().stream()
