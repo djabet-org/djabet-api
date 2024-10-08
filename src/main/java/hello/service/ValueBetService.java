@@ -1,5 +1,6 @@
 package hello.service;
 
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -20,6 +21,7 @@ import hello.dto.PartidaOdds;
 import hello.dto.ValueBet;
 import hello.infra.TheOddsAPI;
 import hello.model.EVFilter;
+import hello.repository.BetRepository;
 
 @Service
 public class ValueBetService {
@@ -27,21 +29,28 @@ public class ValueBetService {
     @Autowired
     private TheOddsAPI api;
 
+    private BetRepository _betRepository;
+
     private Map<String, String> sportsMarketsMap = Map.of(
-        "soccer", "spreads,totals"
+        "soccer", "btts,draw-no-bet"
     );
 
     private Logger _log = Logger.getLogger(getClass().getName());
 
     public List<ValueBet> getValueBets(double bankroll, EVFilter evFilter) {
         return api.getUpcomingPartidas().stream()
-            .map(partida -> api.getOdds(partida, "spreads,totals"))
+            .map(partida -> api.getOdds(partida, chooseMarkets(partida.getSportKey())))
             .filter(Objects::nonNull)
             .flatMap(partidaOdd -> _calculateEVs(bankroll, _getOdds(partidaOdd)).stream())
             .filter(valueBet -> valueBet.getEv() * 100 >= evFilter.getMinEv() && valueBet.getEv() * 100 <= evFilter.getMaxEv() )
             .collect(Collectors.toList());
     }
 
+    private String chooseMarkets(String sportKey) {
+        return sportsMarketsMap.entrySet().stream()
+            .filter( entry -> sportKey.contains(entry.getKey()))
+            .findFirst().map( entry -> entry.getValue()).orElse("h2h");  
+    }
 
     private List<ValueBet> _calculateEVs(double bankroll, List<Odd> odds) {
         Map<String, Map<String, List<Odd>>> baseProbabilityMap = odds.stream()
@@ -78,6 +87,7 @@ public class ValueBetService {
         double ev = (baseProbability / (100 / marketOdd.getOdd())) - 1;
 
         return ValueBet.builder()
+                .evPercentage(String.format("%.2f%%", ev * 100))
                 .ev(ev)
                 .market(marketOdd.getMarket())
                 .partida(marketOdd.getPartida())

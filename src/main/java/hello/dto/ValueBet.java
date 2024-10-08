@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class ValueBet {
     private double ev;
+    private String evPercentage;
     private String market;
     private Partida partida;
     private String torneio;

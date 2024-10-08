@@ -40,6 +40,7 @@ public class Helper {
             "betmgm",
             "sport888",
             "betfair_ex_uk",
+            "boylesports",
             "betfair_ex_eu");
 
             public static List<String> getExcludedBookmakers() {
