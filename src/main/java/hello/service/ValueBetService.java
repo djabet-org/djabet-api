@@ -2,6 +2,7 @@ package hello.service;
 
 import java.security.KeyStore.Entry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,7 @@ import hello.dto.Outcome;
 import hello.dto.Partida;
 import hello.dto.PartidaOdds;
 import hello.dto.ValueBet;
-import hello.infra.TheOddsAPI;
+import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
 import hello.repository.BetRepository;
 
@@ -38,12 +39,12 @@ public class ValueBetService {
     private Logger _log = Logger.getLogger(getClass().getName());
 
     public List<ValueBet> getValueBets(double bankroll, EVFilter evFilter) {
-        return api.getUpcomingPartidas().stream()
-            .map(partida -> api.getOdds(partida, chooseMarkets(partida.getSportKey())))
-            .filter(Objects::nonNull)
-            .flatMap(partidaOdd -> _calculateEVs(bankroll, _getOdds(partidaOdd)).stream())
-            .filter(valueBet -> valueBet.getEv() * 100 >= evFilter.getMinEv() && valueBet.getEv() * 100 <= evFilter.getMaxEv() )
-            .collect(Collectors.toList());
+        return Collections.EMPTY_LIST;
+        // return api.getUpcomingPartidas().stream()
+        //     .flatMap( partida -> api.getOdds(partida.getSportKey(), partida.getId(), chooseMarkets(partida.getSportKey())))
+        //     .flatMap( odds -> _calculateEVs(bankroll, odds).stream())
+        //     .filter(valueBet -> valueBet.getEv() * 100 >= evFilter.getMinEv() && valueBet.getEv() * 100 <= evFilter.getMaxEv() )
+        //     .collect(Collectors.toList());
     }
 
     private String chooseMarkets(String sportKey) {
@@ -101,19 +102,20 @@ public class ValueBetService {
     }
 
     private List<Odd> _getOdds(PartidaOdds partida) {
-        List<Odd> odds = new ArrayList<>();
-        for (Bookmaker bookmaker : partida.getBookmakers()) {
-            for (Market market : bookmaker.getMarkets()) {
-                if (market.getOutcomes().size() >= 3)
-                    continue;
-                for (Outcome outcome : market.getOutcomes()) {
-                    odds.add(_toOdd(bookmaker.getKey(), market.getKey(), outcome.getName(), outcome.getOdd(), partida));
-                }
-            }
+        // List<Odd> odds = new ArrayList<>();
+        // for (Bookmaker bookmaker : partida.getBookmakers()) {
+        //     for (Market market : bookmaker.getMarkets()) {
+        //         if (market.getOutcomes().size() >= 3)
+        //             continue;
+        //         for (Outcome outcome : market.getOutcomes()) {
+        //             odds.add(_toOdd(bookmaker.getKey(), market.getKey(), outcome.getName(), outcome.getOdd(), partida));
+        //         }
+        //     }
 
-        }
+        // }
 
-        return odds;
+        // return odds;
+        return Collections.emptyList();
     }
 
      private Odd _toOdd(String bookmaker, String market, String name, double odd, PartidaOdds partida) {
