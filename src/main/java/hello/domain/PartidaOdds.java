@@ -1,4 +1,4 @@
-package hello.dto;
+package hello.domain;
 
 import java.util.Collections;
 import java.util.List;
