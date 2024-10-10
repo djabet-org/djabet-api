@@ -3,6 +3,7 @@ package hello.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ import hello.dto.Partida;
 import hello.dto.PartidaOdds;
 import hello.dto.SureBet;
 import hello.dto.Torneio;
-import hello.infra.TheOddsAPI;
+import hello.infrastructure.TheOddsAPI;
 
 public class SureBetsService {
 
@@ -51,27 +52,27 @@ public class SureBetsService {
         // String url = "http://localhost:8081/response.json";
 
         String markets = "h2h,spreads,totals";
-        oddsAPI.getSoccerTorneios().stream()
-                // .filter(
-                // torneio -> torneio.getGroup().equalsIgnoreCase(Constants.CRICKET_GROUP) ||
-                // torneio.getGroup().equalsIgnoreCase(Constants.TENNIS_GROUP) ||
-                // torneio.getGroup().equalsIgnoreCase(Constants.BASKETBALL_GROUP) ||
-                // torneio.getGroup().equalsIgnoreCase(Constants.BASEBALL_GROUP))
-                // .limit(1)
-                // filter(torneio -> !torneio.getTitle().equalsIgnoreCase("test matches"))
-                .limit(1)
-                // .peek(torneio -> System.out.println(torneio.getTitle()+"\n"))
-                .flatMap(torneio -> oddsAPI.getPartidas(torneio.getKey()).stream())
-                .limit(5)
-                .map(partida -> oddsAPI.getOdds(partida, markets))
-                // .peek(System.out::println)
-                .map(this::_getOdds)
-                // .peek( System.out::println)
-                .flatMap(odds -> getArbs(odds, 100).stream())
-                .filter( arb -> arb.getArbs() > 0)
-                // .peek( System.out::println)
-                .sorted(Comparator.comparing(SureBet::getArbs).reversed())
-                .forEach(System.out::println);
+        // oddsAPI.getSoccerTorneios().stream()
+        //         // .filter(
+        //         // torneio -> torneio.getGroup().equalsIgnoreCase(Constants.CRICKET_GROUP) ||
+        //         // torneio.getGroup().equalsIgnoreCase(Constants.TENNIS_GROUP) ||
+        //         // torneio.getGroup().equalsIgnoreCase(Constants.BASKETBALL_GROUP) ||
+        //         // torneio.getGroup().equalsIgnoreCase(Constants.BASEBALL_GROUP))
+        //         // .limit(1)
+        //         // filter(torneio -> !torneio.getTitle().equalsIgnoreCase("test matches"))
+        //         .limit(1)
+        //         // .peek(torneio -> System.out.println(torneio.getTitle()+"\n"))
+        //         .flatMap(torneio -> oddsAPI.getPartidas(torneio.getKey()).stream())
+        //         .limit(5)
+        //         .map(partida -> oddsAPI.getOdds(partida, markets))
+        //         // .peek(System.out::println)
+        //         .map(this::_getOdds)
+        //         // .peek( System.out::println)
+        //         .flatMap(odds -> getArbs(odds, 100).stream())
+        //         .filter( arb -> arb.getArbs() > 0)
+        //         // .peek( System.out::println)
+        //         .sorted(Comparator.comparing(SureBet::getArbs).reversed())
+        //         .forEach(System.out::println);
         // .limit(15)
     }
     public List<SureBet> getArbs(List<Odd> odds, double bankroll) {
@@ -113,17 +114,18 @@ public class SureBetsService {
     }
 
     private List<Odd> _getOdds(PartidaOdds partida) {
-        List<Odd> odds = new ArrayList<>();
-        for (Bookmaker bookmaker : partida.getBookmakers()) {
-            for (Market market : bookmaker.getMarkets()) {
-                for (Outcome outcome : market.getOutcomes()) {
-                    odds.add(_toOdd(bookmaker.getKey(), market.getKey(), outcome.getName(), outcome.getOdd(), partida));
-                }
-            }
+        // List<Odd> odds = new ArrayList<>();
+        // for (Bookmaker bookmaker : partida.getBookmakers()) {
+        //     for (Market market : bookmaker.getMarkets()) {
+        //         for (Outcome outcome : market.getOutcomes()) {
+        //             odds.add(_toOdd(bookmaker.getKey(), market.getKey(), outcome.getName(), outcome.getOdd(), partida));
+        //         }
+        //     }
 
-        }
+        // }
 
-        return odds;
+        // return odds;
+        return Collections.emptyList();
     }
 
     private Odd _toOdd(String bookmaker, String market, String name, double odd, PartidaOdds partida) {

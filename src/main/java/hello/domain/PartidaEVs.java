@@ -1,6 +1,5 @@
-package hello.dto;
+package hello.domain;
 
-import java.util.Collections;
 import java.util.List;
 
 import lombok.Builder;
@@ -8,7 +7,9 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PartidaOdds {
+public class PartidaEVs {
+
     private Partida partida;
-    private List<Odd> odds;
+    private List<ValueBet> evs;
+
 }
