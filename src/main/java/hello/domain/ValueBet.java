@@ -9,7 +9,6 @@ public class ValueBet {
     private double ev;
     private String evPercentage;
     private String market;
-    private Partida partida;
     private String bookmaker;
     private double odd;
     private String outcome;

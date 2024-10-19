@@ -26,6 +26,7 @@ public class BettingServiceImpl implements BettingService {
     public List<PartidaEVs> calculateEVs(List<PartidaOdds> partidaOdds) {
         return partidaOdds.stream()
             .map( partidaOdd -> _getEVs(100.0, partidaOdd))
+            .filter( partidaOdd -> partidaOdd.getEvs().size() > 0)
             .collect(Collectors.toList());
     }
 
@@ -65,7 +66,6 @@ public class BettingServiceImpl implements BettingService {
                 .evPercentage(String.format("%.2f%%", ev * 100))
                 .ev(ev)
                 .market(marketOdd.getMarket())
-                .partida(partidaOdds.getPartida())
                 .bookmaker(marketOdd.getBookmaker())
                 .odd(marketOdd.getOdd())
                 .outcome(marketOdd.getOutcome())

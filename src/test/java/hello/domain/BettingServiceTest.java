@@ -34,6 +34,8 @@ import hello.service.ValueBetService;
 @ExtendWith(MockitoExtension.class)
 public class BettingServiceTest {
 
+    private static final String TEAM_HOME = "Sport";
+
     @Mock
     private TheOddsAPI theOddsAPI;
 
@@ -44,10 +46,13 @@ public class BettingServiceTest {
 
     private List<PartidaEVs> _result;
 
+    private Partida _partida;
+
     @BeforeEach
     public void setup() {
         _partidaOdds = _newPartidaOdds();
         _result = bettingService.calculateEVs(_partidaOdds);
+        _partida = _newPartida(null);
     }
 
     @Test
@@ -55,23 +60,48 @@ public class BettingServiceTest {
         List<PartidaOdds> expecteOdds = _newPartidaOdds();
         when(theOddsAPI.getUpcomingOdds()).thenReturn(expecteOdds);
         List<PartidaOdds> odds = bettingService.getOdds();
-        
+
         verify(theOddsAPI).getUpcomingOdds();
         assertEquals(expecteOdds, odds);
     }
 
     @Test
     public void testGetValueBets() {
-        System.out.println(_result);
-
         assertEquals(1, _result.size());
         assertTrue(_result.get(0).getEvs().size() > 0);
+    }
+
+    @Test
+    public void testGetValueBetsIfPositive() {
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.0)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_partida)
+                .odds(List.of(odd1, odd2)).build();
+
+        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd));
+
+        System.out.println(result);
+
+        assertEquals(0, result.size());
     }
 
     private Partida _newPartida(String horario) {
         return Partida.builder()
                 .awayTeam("Away Team")
-                .homeTeam("Home Team")
+                .homeTeam(TEAM_HOME)
                 .horario(horario)
                 .id("any-id")
                 .sportKey("torneio-key")
@@ -80,42 +110,42 @@ public class BettingServiceTest {
                 .build();
     }
 
-    private List<PartidaOdds> _newPartidaOdds() { 
+    private List<PartidaOdds> _newPartidaOdds() {
 
         Partida partida = _newPartida(null);
 
         Odd odd1 = Odd.builder()
-            .bookmaker("Bookmaker A")
-            .market("h2h")
-            .outcome("Sport")
-            .odd(3.2)
-            .build();
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
 
         Odd odd4 = Odd.builder()
-            .bookmaker("Bookmaker B")
-            .market("h2h")
-            .outcome("Nautico")
-            .odd(1.5)
-            .build();
+                .bookmaker("Bookmaker B")
+                .market("h2h")
+                .outcome("Nautico")
+                .odd(1.5)
+                .build();
 
         Odd pinnacleOdd1 = Odd.builder()
-            .bookmaker("pinnacle")
-            .market("h2h")
-            .outcome("Sport")
-            .odd(1.4)
-            .build();
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(1.4)
+                .build();
 
         Odd pinnacleOdd2 = Odd.builder()
-            .bookmaker("pinnacle")
-            .market("h2h")
-            .outcome("Nautico")
-            .odd(2.1)
-            .build();
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome("Nautico")
+                .odd(2.1)
+                .build();
 
-            PartidaOdds partidaOdd = PartidaOdds.builder().partida(partida)
-             .odds(List.of(odd1, odd4, pinnacleOdd1, pinnacleOdd2)).build();
+        PartidaOdds partidaOdd = PartidaOdds.builder().partida(partida)
+                .odds(List.of(odd1, odd4, pinnacleOdd1, pinnacleOdd2)).build();
 
-            return List.of(partidaOdd);
+        return List.of(partidaOdd);
     }
 
 }
