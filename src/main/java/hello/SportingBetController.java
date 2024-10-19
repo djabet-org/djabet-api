@@ -49,12 +49,17 @@ public class SportingBetController {
     @CrossOrigin
     @GetMapping(path = "/valuebet", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getValueBets(@RequestParam("bankroll") double bankroll,
-    @RequestParam("minEV") Optional<Double> minEV, @RequestParam("maxEV") Optional<Double> maxEV) {
+    @RequestParam("minEV") Optional<Double> minEV, @RequestParam("maxEV") Optional<Double> maxEV,
+    @RequestParam("markets") Optional<String> markets) {
         try {
             _log.info("New request!");
-            List<PartidaOdds> odds = _bettingService.getOdds();
-            EVFilter evFilter = EVFilter.builder().minEv(minEV.orElse(1.0)).maxEv(maxEV.orElse(Double.MAX_VALUE)).build();
-            List<PartidaEVs> evs = _bettingService.calculateEVs(odds);
+            EVFilter evFilter = EVFilter.builder()
+                .minEv(minEV.orElse(1.0))
+                .maxEv(maxEV.orElse(Double.MAX_VALUE))
+                .markets(markets.orElse("h2h"))
+                .build();
+            List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
+            List<PartidaEVs> evs = _bettingService.calculateEVs(odds,evFilter);
             String evsAsJson = new ObjectMapper().writeValueAsString(evs);
             // _log.info(evsAsJson);
             return ResponseEntity.ok().body(evsAsJson);

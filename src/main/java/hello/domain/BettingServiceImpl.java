@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import hello.domain.PartidaOdds;
 import hello.infrastructure.TheOddsAPI;
+import hello.model.EVFilter;
 import hello.service.Helper;
 
 @Service
@@ -23,14 +24,14 @@ public class BettingServiceImpl implements BettingService {
     private TheOddsAPI theOddsAPI;
 
     @Override
-    public List<PartidaEVs> calculateEVs(List<PartidaOdds> partidaOdds) {
+    public List<PartidaEVs> calculateEVs(List<PartidaOdds> partidaOdds, EVFilter evFilter) {
         return partidaOdds.stream()
-            .map( partidaOdd -> _getEVs(100.0, partidaOdd))
+            .map( partidaOdd -> _getEVs(100.0, partidaOdd, evFilter))
             .filter( partidaOdd -> partidaOdd.getEvs().size() > 0)
             .collect(Collectors.toList());
     }
 
-    private PartidaEVs _getEVs(double bankroll, PartidaOdds partidaOdds) {
+    private PartidaEVs _getEVs(double bankroll, PartidaOdds partidaOdds, EVFilter evFilter) {
         Map<String, Map<String, List<Odd>>> winProbabilityBasedOnPinnacle = partidaOdds.getOdds().stream()
                 .filter(odd -> odd.getBookmaker().equals("pinnacle"))
                 .collect(Collectors.groupingBy(Odd::getMarket, Collectors.groupingBy(Odd::getOutcome)));
@@ -42,6 +43,7 @@ public class BettingServiceImpl implements BettingService {
                 .flatMap(marketsMap -> marketsMap.getValue().stream())
                 .map(marketOdd -> _toEV(bankroll, partidaOdds, marketOdd, winProbabilityBasedOnPinnacle))
                 .filter( ev -> ev.getEv() > 0)
+                .filter( ev -> evFilter.getMarkets().contains(ev.getMarket()))
                 // .filter(valueBet -> !valueBet.getBookmaker().equals("pinnacle"))
                 // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
                 // .filter(valueBet -> Helper.happensInTwoDays(valueBet.getPartida().getHorario()))
@@ -69,14 +71,14 @@ public class BettingServiceImpl implements BettingService {
                 .bookmaker(marketOdd.getBookmaker())
                 .odd(marketOdd.getOdd())
                 .outcome(marketOdd.getOutcome())
-                .sharpOdd(baseProbability)
+                .sharpOdd(pinnacleOdd)
                 .betAmmount(Helper.calculateBetAmount(baseProbability, bankroll, marketOdd.getOdd()))
                 .build();
     }
 
     @Override
-    public List<PartidaOdds> getOdds() throws JsonMappingException, JsonProcessingException {
-        return theOddsAPI.getUpcomingOdds();
+    public List<PartidaOdds> getOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
+        return theOddsAPI.getUpcomingOdds(evFilter);
     }
 
 }

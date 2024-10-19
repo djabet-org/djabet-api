@@ -28,6 +28,7 @@ import hello.dto.Odd;
 import hello.dto.Outcome;
 import hello.domain.Partida;
 import hello.dto.Torneio;
+import hello.model.EVFilter;
 import hello.service.Helper;
 import hello.service.HttpClient;
 
@@ -123,7 +124,7 @@ public class TheOddsAPI {
         }
     }
 
-    public List<PartidaOdds> getUpcomingOdds() throws JsonMappingException, JsonProcessingException {
+    public List<PartidaOdds> getUpcomingOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
             String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk",
                     theOddsApiBaseUrl, apiKey, MARKETS);
 
@@ -193,6 +194,6 @@ public class TheOddsAPI {
     }
 
     public List<Partida> getUpcomingPartidas() throws JsonMappingException, JsonProcessingException {
-        return getUpcomingOdds().stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
+        return getUpcomingOdds(null).stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
     }
 }

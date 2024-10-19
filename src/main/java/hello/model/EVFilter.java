@@ -8,4 +8,5 @@ import lombok.Data;
 public class EVFilter {
     private double minEv;
     private double maxEv;
+    @Builder.Default private String markets = "h2h";
 }
