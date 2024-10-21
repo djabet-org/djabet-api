@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class EVFilter {
     private double minEv;
-    private double maxEv;
+    @Builder.Default private double maxEv = Double.MAX_VALUE;
+    private double minOdd;
+    @Builder.Default private double maxOdd = Double.MAX_VALUE;
     private String markets;
 }

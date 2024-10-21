@@ -73,7 +73,7 @@ public class SportBetControllerIT {
                         );
 
                         // Perform the actual API request
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/sports/valuebet?bankroll=100&markets=h2h&minEV=1.3"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/sports/valuebet?bankroll=100&markets=h2h&minEV=1.3&minOdd=10"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(1)))
                 .andExpect(jsonPath("$.[0].partida.id", Matchers.is("9447dba7162058a6c294cfb1dad257cc")))

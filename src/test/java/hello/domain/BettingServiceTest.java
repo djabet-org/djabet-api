@@ -166,6 +166,51 @@ public class BettingServiceTest {
         assertTrue(evs.get(0).getEv() >= 0.04);
     }
 
+    @Test
+    public void itShouldGetValueBetsFilteredByOdd() {
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.4)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("Bookmaker B")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.3)
+                .build();
+
+        Odd odd3 = Odd.builder()
+                .bookmaker("Bookmaker C")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.8)
+                .build();
+
+        Odd pinnacleOdd = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        PartidaOdds partidaOdd = PartidaOdds.builder()
+                .partida(_partida)
+                .odds(List.of(odd1, odd2, odd3, pinnacleOdd))
+                .build();
+
+        EVFilter evFilter = EVFilter.builder().minOdd(3.32).maxOdd(3.7).build();
+
+        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), evFilter);
+
+        List<ValueBet> evs = result.get(0).getEvs();
+
+        assertEquals(1, evs.size());
+        assertTrue(evs.get(0).getEv() >= 0.04);
+    }
     private Partida _newPartida(String horario) {
         return Partida.builder()
                 .awayTeam("Away Team")

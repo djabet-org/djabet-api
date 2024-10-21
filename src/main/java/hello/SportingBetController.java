@@ -50,11 +50,15 @@ public class SportingBetController {
     @GetMapping(path = "/valuebet", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getValueBets(@RequestParam("bankroll") double bankroll,
     @RequestParam("minEV") Optional<Double> minEV, @RequestParam("maxEV") Optional<Double> maxEV,
+ @RequestParam("minOdd") Optional<Double> minOdd,@RequestParam("maxOdd") Optional<Double> maxOdd,
     @RequestParam("markets") Optional<String> markets) {
         try {
             _log.info("New request!");
             EVFilter evFilter = EVFilter.builder()
                 .minEv(minEV.orElse(0.0))
+                .maxEv(maxEV.orElse(Double.MAX_VALUE))
+                .maxOdd(maxOdd.orElse(Double.MAX_VALUE))
+                .minOdd(minOdd.orElse(0.0))
                 .markets(markets.orElse(""))
                 .build();
             List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
