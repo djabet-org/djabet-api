@@ -54,14 +54,12 @@ public class SportingBetController {
         try {
             _log.info("New request!");
             EVFilter evFilter = EVFilter.builder()
-                .minEv(minEV.orElse(1.0))
-                .maxEv(maxEV.orElse(Double.MAX_VALUE))
-                .markets(markets.orElse("h2h"))
+                .minEv(minEV.orElse(0.0))
+                .markets(markets.orElse(""))
                 .build();
             List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
             List<PartidaEVs> evs = _bettingService.calculateEVs(odds,evFilter);
             String evsAsJson = new ObjectMapper().writeValueAsString(evs);
-            // _log.info(evsAsJson);
             return ResponseEntity.ok().body(evsAsJson);
         } catch (Exception e) {
             e.printStackTrace();

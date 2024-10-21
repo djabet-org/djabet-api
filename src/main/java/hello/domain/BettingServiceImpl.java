@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,13 +38,13 @@ public class BettingServiceImpl implements BettingService {
                 .collect(Collectors.groupingBy(Odd::getMarket, Collectors.groupingBy(Odd::getOutcome)));
 
         List<ValueBet> evs = partidaOdds.getOdds().stream()
-                // .peek(System.out::println)
                 .collect(Collectors.groupingBy(Odd::getMarket))
                 .entrySet().stream()
                 .flatMap(marketsMap -> marketsMap.getValue().stream())
                 .map(marketOdd -> _toEV(bankroll, partidaOdds, marketOdd, winProbabilityBasedOnPinnacle))
-                .filter( ev -> ev.getEv() > 0)
-                .filter( ev -> evFilter.getMarkets().contains(ev.getMarket()))
+                .filter( ev -> ev.getEv() > evFilter.getMinEv())
+                .filter( ev -> StringUtil.isBlank(evFilter.getMarkets()) ? true : evFilter.getMarkets().contains(ev.getMarket()))
+                .peek(System.out::println)
                 // .filter(valueBet -> !valueBet.getBookmaker().equals("pinnacle"))
                 // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
                 // .filter(valueBet -> Helper.happensInTwoDays(valueBet.getPartida().getHorario()))

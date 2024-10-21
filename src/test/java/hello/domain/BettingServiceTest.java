@@ -42,8 +42,6 @@ public class BettingServiceTest {
     @InjectMocks
     private BettingService bettingService = new BettingServiceImpl();
 
-    private List<PartidaEVs> _result;
-
     private Partida _partida;
 
     @BeforeEach
@@ -54,7 +52,7 @@ public class BettingServiceTest {
     @Test
     public void itShouldGetOdds() throws JsonMappingException, JsonProcessingException {
         List<PartidaOdds> expecteOdds = _newPartidaOdds();
-        EVFilter evFilter = EVFilter.builder().markets("h2h").build();
+        EVFilter evFilter = EVFilter.builder().build();
         when(theOddsAPI.getUpcomingOdds(any(EVFilter.class))).thenReturn(expecteOdds);
         List<PartidaOdds> odds = bettingService.getOdds(evFilter);
 
@@ -82,7 +80,7 @@ public class BettingServiceTest {
         PartidaOdds partidaOdd = PartidaOdds.builder().partida(_partida)
                 .odds(List.of(odd1, odd2)).build();
 
-        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), null);
+        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().build());
 
         assertEquals(0, result.size());
     }
@@ -127,6 +125,45 @@ public class BettingServiceTest {
         List<ValueBet> evs = result.get(0).getEvs();
         assertEquals(1, evs.size());
         assertEquals(evs.get(0).getMarket(), "h2h");
+    }
+
+    @Test
+    public void itShouldGetValueBetsFilteredByEvPercentage() {
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.4)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("Bookmaker B")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.3)
+                .build();
+
+        Odd pinnacleOdd = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        PartidaOdds partidaOdd = PartidaOdds.builder()
+                .partida(_partida)
+                .odds(List.of(odd1, odd2, pinnacleOdd))
+                .build();
+
+        EVFilter evFilter = EVFilter.builder().minEv(0.04).build();
+
+        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), evFilter);
+
+        List<ValueBet> evs = result.get(0).getEvs();
+
+        assertEquals(1, evs.size());
+        assertTrue(evs.get(0).getEv() >= 0.04);
     }
 
     private Partida _newPartida(String horario) {
