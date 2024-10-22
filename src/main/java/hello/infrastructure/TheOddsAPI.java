@@ -124,8 +124,8 @@ public class TheOddsAPI {
         }
     }
 
-    public List<PartidaOdds> getUpcomingOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
-            String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk",
+    public List<PartidaOdds> getUpcomingOdds() throws JsonMappingException, JsonProcessingException {
+            String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk&dateFormat=unix",
                     theOddsApiBaseUrl, apiKey, MARKETS);
 
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
@@ -194,6 +194,6 @@ public class TheOddsAPI {
     }
 
     public List<Partida> getUpcomingPartidas() throws JsonMappingException, JsonProcessingException {
-        return getUpcomingOdds(null).stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
+        return getUpcomingOdds().stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
     }
 }

@@ -1,16 +1,19 @@
 package hello.infrastructure;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import hello.domain.Odd;
 import hello.domain.Partida;
 import hello.domain.PartidaOdds;
-import hello.domain.PartidaOdds.PartidaOddsBuilder;
-import hello.domain.Odd;
 import hello.dto.Outcome;
 
 public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
@@ -66,6 +69,8 @@ public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
     }
 
     private Partida _toPartida(JsonNode partidaJsonNode) {
+        long timeInUnix = partidaJsonNode.get("commence_time").asLong();
+
         return Partida.builder()
                 .id(partidaJsonNode.get("id").asText())
                 .name(partidaJsonNode.get("home_team").asText() + " vs " +
@@ -74,9 +79,17 @@ public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
                 .torneio(partidaJsonNode.get("sport_title").asText())
                 .awayTeam(partidaJsonNode.get("away_team").asText())
                 .homeTeam(partidaJsonNode.get("home_team").asText())
-                // .horario(partidaJsonNode.get("commence_time").asText())
+                .horario(_toISO(timeInUnix))
+                .horarionUnix(timeInUnix)
                 .build();
 
     }
 
+    private String _toISO(long timeInUnix) {
+        // Convert unix timestamp to Instant
+        Instant timeInstant = Instant.ofEpochSecond(timeInUnix);
+        ZoneId brasiliaZoneId = ZoneId.of("America/Sao_Paulo"); // Replace with "America/Sao_Paulo" if needed
+        LocalDateTime horarioBrasilia = timeInstant.atZone(brasiliaZoneId).toLocalDateTime();
+        return horarioBrasilia.toString();
+    }
 }

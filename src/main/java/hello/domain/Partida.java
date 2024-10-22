@@ -1,5 +1,9 @@
 package hello.domain;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,4 +17,9 @@ public class Partida {
     private String awayTeam;
     private String horario;
     private String torneio;
+    private long horarionUnix;
+
+    public boolean isLive() {
+        return Instant.ofEpochSecond(horarionUnix).isBefore(Instant.now());
+    }
 }

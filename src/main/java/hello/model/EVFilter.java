@@ -11,4 +11,6 @@ public class EVFilter {
     private double minOdd;
     @Builder.Default private double maxOdd = Double.MAX_VALUE;
     private String markets;
+    private Boolean live;
+    private Boolean prematch;
 }

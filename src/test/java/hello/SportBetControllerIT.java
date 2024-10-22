@@ -1,14 +1,17 @@
 package hello;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.io.File;
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -65,23 +67,34 @@ public class SportBetControllerIT {
         File filejson = ResourceUtils.getFile("classpath:get-upcoming-odds.json");
 
         JsonNode json = new ObjectMapper().readTree(filejson);
+
+        long preMatchTime = Instant.now().plus(Duration.ofDays(2)).toEpochMilli()/1000;
+        long liveTime = Instant.now().minus(Duration.ofHours(2)).toEpochMilli()/1000;
+
         mockServer
                 .expect(MockRestRequestMatchers
-                        .requestTo(new URI("https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=h2h,spreads,totals&regions=eu,uk")))
+                        .requestTo(new URI(
+                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=h2h,spreads,totals&regions=eu,uk&dateFormat=unix")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-                .andRespond(MockRestResponseCreators.withSuccess(json.toString(), MediaType.APPLICATION_JSON)
-                        );
+                .andRespond(MockRestResponseCreators.withSuccess(
+                        json.toString().replace("prematch-date", Long.toString((preMatchTime)).replace("live-date", Long.toString(liveTime))),
+                        MediaType.APPLICATION_JSON));
 
-                        // Perform the actual API request
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/sports/valuebet?bankroll=100&markets=h2h&minEV=1.3&minOdd=10"))
+        // Perform the actual API request
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/sports/valuebet?bankroll=100&markets=h2h&minEV=1.3&minOdd=10&live=true"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(1)))
-                .andExpect(jsonPath("$.[0].partida.id", Matchers.is("9447dba7162058a6c294cfb1dad257cc")))
+                .andExpect(jsonPath("$.[0].partida.id", Matchers.is("live-id")))
                 .andExpect(jsonPath("$.[0].evs.length()", Matchers.is(1)))
-                	 .andDo(MockMvcResultHandlers.print());
+                .andDo(MockMvcResultHandlers.print());
 
+        mockServer.verify();
 
-                mockServer.verify();
+    }
 
+    private String _formatDate(Instant time) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+        return time.atZone(ZoneId.systemDefault()).format(formatter);
     }
 }

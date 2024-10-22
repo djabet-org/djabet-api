@@ -1,9 +1,13 @@
 package hello.domain;
 
-import java.util.Collections;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.poi.util.StringUtil;
@@ -13,23 +17,22 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import hello.domain.PartidaOdds;
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
 import hello.service.Helper;
 
 @Service
 public class BettingServiceImpl implements BettingService {
-    
+
     @Autowired
     private TheOddsAPI theOddsAPI;
 
     @Override
     public List<PartidaEVs> calculateEVs(List<PartidaOdds> partidaOdds, EVFilter evFilter) {
         return partidaOdds.stream()
-            .map( partidaOdd -> _getEVs(100.0, partidaOdd, evFilter))
-            .filter( partidaOdd -> partidaOdd.getEvs().size() > 0)
-            .collect(Collectors.toList());
+                .map(partidaOdd -> _getEVs(100.0, partidaOdd, evFilter))
+                .filter(partidaEVs -> partidaEVs.getEvs().size() > 0)
+                .collect(Collectors.toList());
     }
 
     private PartidaEVs _getEVs(double bankroll, PartidaOdds partidaOdds, EVFilter evFilter) {
@@ -42,21 +45,24 @@ public class BettingServiceImpl implements BettingService {
                 .entrySet().stream()
                 .flatMap(marketsMap -> marketsMap.getValue().stream())
                 .map(marketOdd -> _toEV(bankroll, partidaOdds, marketOdd, winProbabilityBasedOnPinnacle))
-                .filter( ev -> ev.getEv() > evFilter.getMinEv() && ev.getEv() < evFilter.getMaxEv())
+                .filter(ev -> ev.getEv() > evFilter.getMinEv() && ev.getEv() < evFilter.getMaxEv())
+                .filter(ev -> ev.getOdd() > evFilter.getMinOdd() && ev.getOdd() < evFilter.getMaxOdd())
+                .filter(ev -> StringUtil.isBlank(evFilter.getMarkets()) ? true
+                        : evFilter.getMarkets().contains(ev.getMarket()))
                 // .peek(System.out::println)
-                .filter( ev -> ev.getOdd() > evFilter.getMinOdd() && ev.getOdd() < evFilter.getMaxOdd())
-                .filter( ev -> StringUtil.isBlank(evFilter.getMarkets()) ? true : evFilter.getMarkets().contains(ev.getMarket()))
                 // .filter(valueBet -> !valueBet.getBookmaker().equals("pinnacle"))
                 // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
-                // .filter(valueBet -> Helper.happensInTwoDays(valueBet.getPartida().getHorario()))
+                // .filter(valueBet ->
+                // Helper.happensInTwoDays(valueBet.getPartida().getHorario()))
                 // .filter(valuebet -> !Helper.getExcludedBookmakers().stream()
-                //         .anyMatch(bookmaker -> bookmaker.equals(valuebet.getBookmaker())))
+                // .anyMatch(bookmaker -> bookmaker.equals(valuebet.getBookmaker())))
                 .collect(Collectors.toList());
 
         return PartidaEVs.builder().partida(partidaOdds.getPartida()).evs(evs).build();
     }
 
-    private ValueBet _toEV(double bankroll, PartidaOdds partidaOdds, Odd marketOdd, Map<String, Map<String, List<Odd>>> baseProbabilityMap) {
+    private ValueBet _toEV(double bankroll, PartidaOdds partidaOdds, Odd marketOdd,
+            Map<String, Map<String, List<Odd>>> baseProbabilityMap) {
         if (!baseProbabilityMap.containsKey(marketOdd.getMarket())
                 || !baseProbabilityMap.get(marketOdd.getMarket()).containsKey(marketOdd.getOutcome())) {
             return ValueBet.builder().build();
@@ -80,7 +86,10 @@ public class BettingServiceImpl implements BettingService {
 
     @Override
     public List<PartidaOdds> getOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
-        return theOddsAPI.getUpcomingOdds(evFilter);
+        return theOddsAPI.getUpcomingOdds().stream()
+                .filter(partidaOdd -> Objects.isNull(evFilter.getLive())? true : partidaOdd.getPartida().isLive())
+                .peek(System.out::println)
+                .collect(Collectors.toList());
     }
 
 }

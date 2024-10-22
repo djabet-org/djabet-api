@@ -2,13 +2,18 @@ package hello.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
-import org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,17 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import hello.dto.Bookmaker;
-import hello.dto.Market;
-import hello.domain.Odd;
-import hello.dto.Outcome;
-import hello.domain.Partida;
-import hello.domain.PartidaOdds;
-import hello.domain.ValueBet;
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
-import hello.repository.BetRepository;
-import hello.service.ValueBetService;
 
 @ExtendWith(MockitoExtension.class)
 public class BettingServiceTest {
@@ -42,21 +38,21 @@ public class BettingServiceTest {
     @InjectMocks
     private BettingService bettingService = new BettingServiceImpl();
 
-    private Partida _partida;
+    private Partida _prematchPartida;
 
     @BeforeEach
     public void setup() {
-        _partida = _newPartida(null);
+        _prematchPartida = _newPartida("prematch-id", Instant.now().plus(Duration.ofHours(2)).toEpochMilli()/1000);
     }
 
     @Test
     public void itShouldGetOdds() throws JsonMappingException, JsonProcessingException {
         List<PartidaOdds> expecteOdds = _newPartidaOdds();
         EVFilter evFilter = EVFilter.builder().build();
-        when(theOddsAPI.getUpcomingOdds(any(EVFilter.class))).thenReturn(expecteOdds);
+        when(theOddsAPI.getUpcomingOdds()).thenReturn(expecteOdds);
         List<PartidaOdds> odds = bettingService.getOdds(evFilter);
 
-        verify(theOddsAPI).getUpcomingOdds(evFilter);
+        verify(theOddsAPI).getUpcomingOdds();
         assertEquals(expecteOdds, odds);
     }
 
@@ -77,7 +73,7 @@ public class BettingServiceTest {
                 .odd(3.2)
                 .build();
 
-        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_partida)
+        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
                 .odds(List.of(odd1, odd2)).build();
 
         List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().build());
@@ -116,7 +112,7 @@ public class BettingServiceTest {
                 .odd(3.2)
                 .build();
 
-        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_partida)
+        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
                 .odds(List.of(odd1, odd2, odd4, odd5)).build();
 
         EVFilter evFilter = EVFilter.builder().markets("h2h").build();
@@ -152,7 +148,7 @@ public class BettingServiceTest {
                 .build();
 
         PartidaOdds partidaOdd = PartidaOdds.builder()
-                .partida(_partida)
+                .partida(_prematchPartida)
                 .odds(List.of(odd1, odd2, pinnacleOdd))
                 .build();
 
@@ -198,7 +194,7 @@ public class BettingServiceTest {
                 .build();
 
         PartidaOdds partidaOdd = PartidaOdds.builder()
-                .partida(_partida)
+                .partida(_prematchPartida)
                 .odds(List.of(odd1, odd2, odd3, pinnacleOdd))
                 .build();
 
@@ -211,21 +207,77 @@ public class BettingServiceTest {
         assertEquals(1, evs.size());
         assertTrue(evs.get(0).getEv() >= 0.04);
     }
-    private Partida _newPartida(String horario) {
+
+    @Test
+    public void itShouldGetLiveValueBets() throws JsonMappingException, JsonProcessingException {
+
+        Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.4)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("Bookmaker B")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.3)
+                .build();
+
+        Odd pinnacleOdd = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        PartidaOdds prelivePartidaOdd = PartidaOdds.builder()
+                .partida(_prematchPartida)
+                .odds(List.of(odd1, pinnacleOdd))
+                .build();
+
+        PartidaOdds livePartidaOdd = PartidaOdds.builder()
+                .partida(livePartida)
+                .odds(List.of(odd2, pinnacleOdd))
+                .build();
+
+        when(theOddsAPI.getUpcomingOdds()).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
+
+        List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).build());
+        List<PartidaOdds> allResult = bettingService.getOdds(EVFilter.builder().build());
+
+    assertEquals(1, liveResult.size());
+    assertEquals(2, allResult.size());
+
+    assertEquals("live-id", liveResult.get(0).getPartida().getId());
+
+    }
+
+    private Partida _newPartida(String id, long timeUnix) {
         return Partida.builder()
                 .awayTeam("Away Team")
                 .homeTeam(TEAM_HOME)
-                .horario(horario)
-                .id("any-id")
+                .horarionUnix(timeUnix)
+                .horario(convertToISODateTime(timeUnix))
+                .id(id)
                 .sportKey("torneio-key")
                 .torneio("Torneio")
                 .name("Home vs Away")
                 .build();
     }
 
+     private String convertToISODateTime(long unixTimestamp) {
+        Instant instant = Instant.ofEpochSecond(unixTimestamp);
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+        return formatter.format(instant);
+    }
+
     private List<PartidaOdds> _newPartidaOdds() {
 
-        Partida partida = _newPartida(null);
+        Partida partida = _newPartida("any-id",0);
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
