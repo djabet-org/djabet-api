@@ -52,6 +52,7 @@ public class SportingBetController {
             @RequestParam("minEV") Optional<Double> minEV, @RequestParam("maxEV") Optional<Double> maxEV,
             @RequestParam("minOdd") Optional<Double> minOdd, @RequestParam("maxOdd") Optional<Double> maxOdd,
             @RequestParam("live") Optional<Boolean> live,
+            @RequestParam("prematch") Optional<Boolean> prematch,
             @RequestParam("markets") Optional<String> markets) {
         try {
             _log.info("New request!");
@@ -62,6 +63,7 @@ public class SportingBetController {
                     .minOdd(minOdd.orElse(0.0))
                     .markets(markets.orElse(""))
                     .live(live.orElse(null))
+                    .prematch(prematch.orElse(null))
                     .build();
             List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
             List<PartidaEVs> evs = _bettingService.calculateEVs(odds, evFilter);

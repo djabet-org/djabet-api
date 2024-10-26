@@ -88,6 +88,7 @@ public class BettingServiceImpl implements BettingService {
     public List<PartidaOdds> getOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
         return theOddsAPI.getUpcomingOdds().stream()
                 .filter(partidaOdd -> Objects.isNull(evFilter.getLive())? true : partidaOdd.getPartida().isLive())
+                .filter(partidaOdd -> Objects.isNull(evFilter.getPrematch())? true : !partidaOdd.getPartida().isLive())
                 .peek(System.out::println)
                 .collect(Collectors.toList());
     }

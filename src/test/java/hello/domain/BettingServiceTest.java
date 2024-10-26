@@ -209,6 +209,51 @@ public class BettingServiceTest {
     }
 
     @Test
+    public void itShouldGetPrematchValueBets() throws JsonMappingException, JsonProcessingException {
+
+        Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.4)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("Bookmaker B")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.3)
+                .build();
+
+        Odd pinnacleOdd = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        PartidaOdds prelivePartidaOdd = PartidaOdds.builder()
+                .partida(_prematchPartida)
+                .odds(List.of(odd1, pinnacleOdd))
+                .build();
+
+        PartidaOdds livePartidaOdd = PartidaOdds.builder()
+                .partida(livePartida)
+                .odds(List.of(odd2, pinnacleOdd))
+                .build();
+
+        when(theOddsAPI.getUpcomingOdds()).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
+
+        List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).build());
+
+    assertEquals(1, prematchResult.size());
+
+    assertEquals("prematch-id", prematchResult.get(0).getPartida().getId());
+    }
+
+    @Test
     public void itShouldGetLiveValueBets() throws JsonMappingException, JsonProcessingException {
 
         Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
