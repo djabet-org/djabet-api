@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
+import hello.service.Helper;
 
 @Service
 public class BettingServiceImpl implements BettingService {
@@ -48,8 +49,8 @@ public class BettingServiceImpl implements BettingService {
                 // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
                 // .filter(valueBet ->
                 // Helper.happensInTwoDays(valueBet.getPartida().getHorario()))
-                // .filter(valuebet -> !Helper.getExcludedBookmakers().stream()
-                // .anyMatch(bookmaker -> bookmaker.equals(valuebet.getBookmaker())))
+                .filter(ev -> !Helper.getExcludedBookmakers().stream()
+                        .anyMatch(bookmaker -> bookmaker.equals(ev.getBookmaker())))
                 .collect(Collectors.toList());
 
         return PartidaEVs.builder().partida(partidaOdds.getPartida()).evs(evs).build();

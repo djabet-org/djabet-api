@@ -39,6 +39,8 @@ public class Helper {
             "livescorebet_eu",
             "betmgm",
             "sport888",
+            "ladbrokes_uk",
+            "betvictor",
             "betfair_ex_uk",
             "boylesports",
             "betfair_ex_eu");
