@@ -152,14 +152,14 @@ public class BettingServiceTest {
                 .odds(List.of(odd1, odd2, pinnacleOdd))
                 .build();
 
-        EVFilter evFilter = EVFilter.builder().minEv(0.04).build();
+        EVFilter evFilter = EVFilter.builder().minEv(4).build();
 
         List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), evFilter);
 
         List<ValueBet> evs = result.get(0).getEvs();
 
         assertEquals(1, evs.size());
-        assertTrue(evs.get(0).getEv() >= 0.04);
+        assertTrue(evs.get(0).getEv() >= 4);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class BettingServiceTest {
         List<ValueBet> evs = result.get(0).getEvs();
 
         assertEquals(1, evs.size());
-        assertTrue(evs.get(0).getEv() >= 0.04);
+        assertEquals(evs.get(0).getBookmaker(), "Bookmaker A");
     }
 
     @Test

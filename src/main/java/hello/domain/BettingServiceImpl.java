@@ -1,13 +1,8 @@
 package hello.domain;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.poi.util.StringUtil;
@@ -19,7 +14,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
-import hello.service.Helper;
 
 @Service
 public class BettingServiceImpl implements BettingService {
@@ -45,11 +39,11 @@ public class BettingServiceImpl implements BettingService {
                 .entrySet().stream()
                 .flatMap(marketsMap -> marketsMap.getValue().stream())
                 .map(marketOdd -> _toEV(bankroll, partidaOdds, marketOdd, winProbabilityBasedOnPinnacle))
+                // .peek(System.out::println)
                 .filter(ev -> ev.getEv() > evFilter.getMinEv() && ev.getEv() < evFilter.getMaxEv())
                 .filter(ev -> ev.getOdd() > evFilter.getMinOdd() && ev.getOdd() < evFilter.getMaxOdd())
                 .filter(ev -> StringUtil.isBlank(evFilter.getMarkets()) ? true
                         : evFilter.getMarkets().contains(ev.getMarket()))
-                // .peek(System.out::println)
                 // .filter(valueBet -> !valueBet.getBookmaker().equals("pinnacle"))
                 // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
                 // .filter(valueBet ->
@@ -69,8 +63,18 @@ public class BettingServiceImpl implements BettingService {
         }
 
         double pinnacleOdd = baseProbabilityMap.get(marketOdd.getMarket()).get(marketOdd.getOutcome()).get(0).getOdd();
-        double baseProbability = 100.0 / (pinnacleOdd);
-        double ev = (baseProbability / (100 / marketOdd.getOdd())) - 1;
+
+        double stake = 100;
+        double pinnacleImpliedProb = 1 / pinnacleOdd;
+        double yourImpliedProb = 1 / marketOdd.getOdd();
+        double potentialProfit = stake * (marketOdd.getOdd() - 1);
+        double probabilityOfLosing = 1 - pinnacleImpliedProb;
+
+        if (pinnacleImpliedProb <= yourImpliedProb) {
+            return ValueBet.builder().build();
+        }
+
+        double ev = (pinnacleImpliedProb * potentialProfit) - (probabilityOfLosing * stake);
 
         return ValueBet.builder()
                 .evPercentage(String.format("%.2f%%", ev * 100))
@@ -80,7 +84,7 @@ public class BettingServiceImpl implements BettingService {
                 .odd(marketOdd.getOdd())
                 .outcome(marketOdd.getOutcome())
                 .sharpOdd(pinnacleOdd)
-                .betAmmount(Helper.calculateBetAmount(baseProbability, bankroll, marketOdd.getOdd()))
+                // .betAmmount(Helper.calculateBetAmount(baseProbability, bankroll, marketOdd.getOdd()))
                 .build();
     }
 
@@ -89,7 +93,6 @@ public class BettingServiceImpl implements BettingService {
         return theOddsAPI.getUpcomingOdds().stream()
                 .filter(partidaOdd -> Objects.isNull(evFilter.getLive())? true : partidaOdd.getPartida().isLive())
                 .filter(partidaOdd -> Objects.isNull(evFilter.getPrematch())? true : !partidaOdd.getPartida().isLive())
-                .peek(System.out::println)
                 .collect(Collectors.toList());
     }
 
