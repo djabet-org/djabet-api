@@ -101,6 +101,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.combinatoricslib</groupId>
+            <artifactId>combinatoricslib</artifactId>
+            <version>2.3</version>
+            <scope>compile</scope>
+          </dependency>
     </dependencies>
 
     <build>
