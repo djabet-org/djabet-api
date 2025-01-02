@@ -84,12 +84,13 @@ public class ArbBetsServiceTest {
                 .odds(List.of(odd1, odd2, odd3, odd4)).build();
 
         List<PartidaArbs> result = arbBetsService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
-        System.out.println("creu "+result);
+        List<ArbBet> arbs = result.get(0).getArbs();
+        System.out.println("creu "+arbs);
 
         assertEquals(1, result.size());
-        assertEquals(2, result.get(0).getArbs().size());
-        assertEquals(-0.089, result.get(0).getArbs().get(0).getArb(), 0.001);
-        assertEquals(-0.040, result.get(0).getArbs().get(1).getArb(), 0.001);
+        assertEquals(2, arbs.size());
+        assertEquals(0.035, arbs.get(0).getArb(), 0.001);
+        assertEquals(0.383, arbs.get(1).getArb(),0.001);
 
     }
 

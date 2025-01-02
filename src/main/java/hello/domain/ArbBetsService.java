@@ -16,7 +16,7 @@ import hello.model.EVFilter;
 public class ArbBetsService {
 
     public List<PartidaArbs> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter) {
-        return partidasOdds.stream().map( partidaOdds -> _getArbs(partidaOdds)).collect(Collectors.toList());
+        return partidasOdds.stream().map(partidaOdds -> _getArbs(partidaOdds)).collect(Collectors.toList());
     }
 
     private PartidaArbs _getArbs(PartidaOdds partidaOdds) {
@@ -40,31 +40,27 @@ public class ArbBetsService {
         Odd[] odds2 = odds.toArray(Odd[]::new);
 
         ICombinatoricsVector<Odd> vector = CombinatoricsFactory.createVector(odds2);
-        Generator<Odd> gen = CombinatoricsFactory.createSimpleCombinationGenerator(vector, odds.size());
+        Generator<Odd> gen = CombinatoricsFactory.createSimpleCombinationGenerator(vector, 2);
 
-           for (ICombinatoricsVector<Odd> combination : gen) {
-                double arb = 1 - (1 / oddA.getOdd() + 1 / oddB.getOdd());
-                ArbBet arbBet = ArbBet.builder().arb(arb)
-                        .bookmakerA(oddA.getBookmaker())
-                        .bookmakerB(oddB.getBookmaker())
-                        .market(marketEntry.getKey())
-                        .oddA(oddA.getOdd())
-                        .oddB(oddB.getOdd())
-                        .build();
+        for (ICombinatoricsVector<Odd> combination : gen) {
+            Odd oddA = combination.getValue(0);
+            Odd oddB = combination.getValue(1);
+            double arb = 1 - (1 / oddA.getOdd() + 1 / oddB.getOdd());
+            ArbBet arbBet = ArbBet.builder().arb(arb)
+                    .bookmakerA(oddA.getBookmaker())
+                    .bookmakerB(oddB.getBookmaker())
+                    .market(marketEntry.getKey())
+                    .oddA(oddA.getOdd())
+                    .oddB(oddB.getOdd())
+                    .build();
 
-
-           }
-
-        for (int i = 0; i < odds.size(); i++) {
-            for (int i2 = i + 1; i2 < odds.size(); i2++) {
-                Odd oddA = odds.get(i);
-                Odd oddB = odds.get(i2);
-                        arbs.add(arbBet);
+            if (arbBet.getArb() > 0) {
+                arbs.add(arbBet);
             }
 
         }
 
-            return arbs;
+        return arbs;
     }
 
 }
