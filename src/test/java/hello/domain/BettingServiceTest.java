@@ -31,6 +31,7 @@ import hello.model.EVFilter;
 public class BettingServiceTest {
 
     private static final String TEAM_HOME = "Sport";
+    private static final String TEAM_AWAY = "Nautico";
 
     @Mock
     private TheOddsAPI theOddsAPI;
@@ -301,9 +302,54 @@ public class BettingServiceTest {
 
     }
 
+    @Test
+    public void itShouldGetSurebets() {
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bet365")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(1.22)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("Bet365")
+                .market("h2h")
+                .outcome(TEAM_AWAY)
+                .odd(3.7)
+                .build();
+
+        Odd odd3 = Odd.builder()
+                .bookmaker("Betano")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(1.44)
+                .build();
+
+        Odd odd4 = Odd.builder()
+                .bookmaker("Betano")
+                .market("h2h")
+                .outcome(TEAM_AWAY)
+                .odd(2.89)
+                .build();
+
+        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
+                .odds(List.of(odd1, odd2, odd3, odd4)).build();
+
+        List<PartidaArbs> result = bettingService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
+        List<ArbBet> arbs = result.get(0).getArbs();
+        System.out.println("creu "+arbs);
+
+        assertEquals(1, result.size());
+        assertEquals(2, arbs.size());
+        assertEquals(0.035, arbs.get(0).getArb(), 0.001);
+        assertEquals(0.383, arbs.get(1).getArb(),0.001);
+
+    }
+
     private Partida _newPartida(String id, long timeUnix) {
         return Partida.builder()
-                .awayTeam("Away Team")
+                .awayTeam(TEAM_AWAY)
                 .homeTeam(TEAM_HOME)
                 .horarionUnix(timeUnix)
                 .horario(convertToISODateTime(timeUnix))
