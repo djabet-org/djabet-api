@@ -7,13 +7,9 @@ import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -338,12 +334,12 @@ public class BettingServiceTest {
 
         List<PartidaArbs> result = bettingService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
         List<ArbBet> arbs = result.get(0).getArbs();
-        System.out.println("creu "+arbs);
+        System.out.println("creu "+result);
 
         assertEquals(1, result.size());
         assertEquals(2, arbs.size());
-        assertEquals(0.035, arbs.get(0).getArb(), 0.001);
-        assertEquals(0.383, arbs.get(1).getArb(),0.001);
+        assertEquals(3.5285285285285397, arbs.get(0).getArb(), 0.001);
+        assertEquals(38.3708968484055, arbs.get(1).getArb(),0.001);
 
     }
 
