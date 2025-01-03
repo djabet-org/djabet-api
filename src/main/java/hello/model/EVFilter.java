@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class EVFilter {
+    private double minArb;
+    @Builder.Default private double maxArb = Double.MAX_VALUE;
     private double minEv;
     @Builder.Default private double maxEv = Double.MAX_VALUE;
     private double minOdd;

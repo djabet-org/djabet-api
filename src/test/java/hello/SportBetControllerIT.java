@@ -93,6 +93,41 @@ public class SportBetControllerIT {
 
     }
 
+    @Test
+    public void itShouldGetArbs() throws Exception {
+        File filejson = ResourceUtils.getFile("classpath:get-upcoming-odds.json");
+
+        JsonNode json = new ObjectMapper().readTree(filejson);
+
+        long preMatchTime = Instant.now().plus(Duration.ofDays(2)).toEpochMilli()/1000;
+        long liveTime = Instant.now().minus(Duration.ofHours(2)).toEpochMilli()/1000;
+
+        mockServer
+                .expect(MockRestRequestMatchers
+                        .requestTo(new URI(
+                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=h2h,spreads,totals&regions=eu,uk&dateFormat=unix")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(
+                        json.toString().replace("prematch-date", Long.toString((preMatchTime)).replace("live-date", Long.toString(liveTime))),
+                        MediaType.APPLICATION_JSON));
+
+        // Perform the actual API request
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/sports/arbs?bankroll=100&markets=h2h&minArb=0.801&minOdd=10&live=true"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.length()", Matchers.is(1)))
+                .andExpect(jsonPath("$.[0].partida.id", Matchers.is("live-id")))
+                .andExpect(jsonPath("$.[0].partida.sportKey", Matchers.is("baseball_mlb")))
+                .andExpect(jsonPath("$.[0].partida.name", Matchers.is("Colorado Rockies vs St. Louis Cardinals")))
+                .andExpect(jsonPath("$.[0].partida.homeTeam", Matchers.is("Colorado Rockies")))
+                .andExpect(jsonPath("$.[0].partida.awayTeam", Matchers.is("St. Louis Cardinals")))
+                .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
+                .andDo(MockMvcResultHandlers.print());
+
+        mockServer.verify();
+
+    }
+
     private String _formatDate(Instant time) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
         return time.atZone(ZoneId.systemDefault()).format(formatter);

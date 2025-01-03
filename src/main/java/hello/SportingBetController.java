@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hello.data.DashboardDTO;
 import hello.domain.BettingService;
+import hello.domain.PartidaArbs;
 import hello.domain.PartidaEVs;
 import hello.domain.PartidaOdds;
 import hello.dto.Partida;
@@ -69,6 +70,40 @@ public class SportingBetController {
             List<PartidaEVs> evs = _bettingService.calculateEVs(odds, evFilter);
             String evsAsJson = new ObjectMapper().writeValueAsString(evs);
             return ResponseEntity.ok().body(evsAsJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping(path = "/arbs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getArbs(@RequestParam("bankroll") double bankroll,
+            @RequestParam("minArb") Optional<Double> minArb, @RequestParam("maxArb") Optional<Double> maxArb,
+            @RequestParam("minOdd") Optional<Double> minOdd, @RequestParam("maxOdd") Optional<Double> maxOdd,
+            @RequestParam("live") Optional<Boolean> live,
+            @RequestParam("prematch") Optional<Boolean> prematch,
+            @RequestParam("markets") Optional<String> markets) {
+        try {
+            _log.info("New request - Arbs!");
+            EVFilter evFilter = EVFilter.builder()
+                    .minArb(minArb.orElse(0.0))
+                    .maxArb(maxArb.orElse(Double.MAX_VALUE))
+                    .maxOdd(maxOdd.orElse(Double.MAX_VALUE))
+                    .minOdd(minOdd.orElse(0.0))
+                    .markets(markets.orElse(""))
+                    .live(live.orElse(null))
+                    .prematch(prematch.orElse(null))
+                    .build();
+
+            List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
+
+            List<PartidaArbs> arbs = _bettingService.getArbs(odds, evFilter);
+
+            String arbsJson = new ObjectMapper().writeValueAsString(arbs);
+System.out.println("creu "+arbsJson);
+
+            return ResponseEntity.ok().body(arbsJson);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).build();
