@@ -79,6 +79,48 @@ public class BettingServiceTest {
     }
 
     @Test
+    public void itShouldGetArbBetsFilteredByMarkets() {
+
+        Odd odd1 = Odd.builder()
+                .bookmaker("Bookmaker A")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.4)
+                .build();
+
+        Odd odd2 = Odd.builder()
+                .bookmaker("Bookmaker B")
+                .market("h2o")
+                .outcome(TEAM_HOME)
+                .odd(3.4)
+                .build();
+
+        Odd odd4 = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2h")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        Odd odd5 = Odd.builder()
+                .bookmaker("pinnacle")
+                .market("h2o")
+                .outcome(TEAM_HOME)
+                .odd(3.2)
+                .build();
+
+        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
+                .odds(List.of(odd1, odd2, odd4, odd5)).build();
+
+        EVFilter evFilter = EVFilter.builder().markets("h2h").build();
+        List<PartidaArbs> result = bettingService.getArbs(List.of(partidaOdd), evFilter);
+
+        List<ArbBet> arbs = result.get(0).getArbs();
+        assertEquals(1, arbs.size());
+        assertEquals(arbs.get(0).getMarket(), "h2h");
+    }
+
+    @Test
     public void itShouldGetValueBetsFilteredByMarkets() {
 
         Odd odd1 = Odd.builder()

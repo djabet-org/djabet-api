@@ -134,6 +134,7 @@ public class BettingServiceImpl implements BettingService {
                                 .filter(arb -> arb.getProfit() > 0)
                                 .filter(arb -> arb.getArb() > evFilter.getMinArb())
                                 .filter(arb -> arb.getArb() < evFilter.getMaxArb())
+                                .filter(arb -> evFilter.getMarkets().contains(arb.getMarket()))
                                 .collect(Collectors.toList());
         }
 

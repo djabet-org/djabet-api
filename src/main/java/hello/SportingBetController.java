@@ -101,7 +101,6 @@ public class SportingBetController {
             List<PartidaArbs> arbs = _bettingService.getArbs(odds, evFilter);
 
             String arbsJson = new ObjectMapper().writeValueAsString(arbs);
-System.out.println("creu "+arbsJson);
 
             return ResponseEntity.ok().body(arbsJson);
         } catch (Exception e) {
