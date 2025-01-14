@@ -111,9 +111,9 @@ public class SportBetControllerIT {
 
         // Perform the actual API request
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true"))
+                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true&sports=baseball,soccer"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.length()", Matchers.is(1)))
+                .andExpect(jsonPath("$.length()", Matchers.is(2)))
                 .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
                 .andExpect(jsonPath("$.[0].partida.id", Matchers.is("live-id")))
                 .andExpect(jsonPath("$.[0].partida.sportKey", Matchers.is("baseball_mlb")))

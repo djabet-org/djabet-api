@@ -1,6 +1,7 @@
 package hello.domain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,9 +38,19 @@ public class BettingServiceImpl implements BettingService {
 
         @Override
         public List<PartidaArbs> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter) {
-                return partidasOdds.stream().map(partidaOdds -> _getArbs(partidaOdds, evFilter))
+                return partidasOdds.stream()
+                        .filter(partidaOdds -> StringUtil.isBlank(evFilter.getSports()) ? true
+                                                : _matchesSportsFilter(partidaOdds, evFilter))
+                        .map(partidaOdds -> _getArbs(partidaOdds, evFilter))
                                 .collect(Collectors.toList());
         }
+
+        private boolean _matchesSportsFilter(PartidaOdds partidaOdds, EVFilter evFilter) {
+                        return Arrays.asList(evFilter.getSports().split(",")).stream()
+                                                        .anyMatch( sport -> partidaOdds.getPartida().getSportKey().contains(sport.toLowerCase()));
+
+         }
+
 
         private PartidaEVs _getEVs(double bankroll, PartidaOdds partidaOdds, EVFilter evFilter) {
                 Map<String, Map<String, List<Odd>>> winProbabilityBasedOnPinnacle = partidaOdds.getOdds().stream()

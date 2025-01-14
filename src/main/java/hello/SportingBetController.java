@@ -83,6 +83,7 @@ public class SportingBetController {
             @RequestParam("minOdd") Optional<Double> minOdd, @RequestParam("maxOdd") Optional<Double> maxOdd,
             @RequestParam("live") Optional<Boolean> live,
             @RequestParam("prematch") Optional<Boolean> prematch,
+            @RequestParam("sports") Optional<String> sports,
             @RequestParam("markets") Optional<String> markets) {
         try {
             _log.info("New request - Arbs!");
@@ -91,7 +92,8 @@ public class SportingBetController {
                     .maxArb(maxArb.orElse(Double.MAX_VALUE))
                     .maxOdd(maxOdd.orElse(Double.MAX_VALUE))
                     .minOdd(minOdd.orElse(0.0))
-                    .markets(markets.orElse(""))
+                    .markets(markets.orElse("h2h"))
+                    .sports(sports.orElse(""))
                     .live(live.orElse(null))
                     .prematch(prematch.orElse(null))
                     .build();
