@@ -84,6 +84,7 @@ public class SportingBetController {
             @RequestParam("live") Optional<Boolean> live,
             @RequestParam("prematch") Optional<Boolean> prematch,
             @RequestParam("sports") Optional<String> sports,
+            @RequestParam("notSports") Optional<String> notSports,
             @RequestParam("markets") Optional<String> markets) {
         try {
             _log.info("New request - Arbs!");
@@ -96,7 +97,9 @@ public class SportingBetController {
                     .sports(sports.orElse(""))
                     .live(live.orElse(null))
                     .prematch(prematch.orElse(null))
+                    .notSports(notSports.orElse(""))
                     .build();
+
 
             List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
 

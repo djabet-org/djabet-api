@@ -41,8 +41,15 @@ public class BettingServiceImpl implements BettingService {
                 return partidasOdds.stream()
                         .filter(partidaOdds -> StringUtil.isBlank(evFilter.getSports()) ? true
                                                 : _matchesSportsFilter(partidaOdds, evFilter))
+                        .filter(partidaOdds -> _diffSports(partidaOdds, evFilter.getNotSports()))
                         .map(partidaOdds -> _getArbs(partidaOdds, evFilter))
                                 .collect(Collectors.toList());
+        }
+
+        private boolean _diffSports(PartidaOdds partidaOdds, String blacklistedSports) {
+                        return Arrays.asList(blacklistedSports.split(",")).stream()
+                                                        .noneMatch( sport -> partidaOdds.getPartida().getSportKey().contains(sport.toLowerCase()));
+
         }
 
         private boolean _matchesSportsFilter(PartidaOdds partidaOdds, EVFilter evFilter) {
