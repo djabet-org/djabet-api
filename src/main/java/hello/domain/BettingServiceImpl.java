@@ -39,8 +39,7 @@ public class BettingServiceImpl implements BettingService {
         @Override
         public List<PartidaArbs> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter) {
                 return partidasOdds.stream()
-                        .filter(partidaOdds -> StringUtil.isBlank(evFilter.getSports()) ? true
-                                                : _matchesSportsFilter(partidaOdds, evFilter))
+                        .filter(partidaOdds -> _matchesSportsFilter(partidaOdds, evFilter))
                         .filter(partidaOdds -> _diffSports(partidaOdds, evFilter.getNotSports()))
                         .map(partidaOdds -> _getArbs(partidaOdds, evFilter))
                                 .collect(Collectors.toList());
@@ -53,7 +52,7 @@ public class BettingServiceImpl implements BettingService {
         }
 
         private boolean _matchesSportsFilter(PartidaOdds partidaOdds, EVFilter evFilter) {
-                        return Arrays.asList(evFilter.getSports().split(",")).stream()
+                        return StringUtil.isBlank(evFilter.getSports()) ? true : Arrays.asList(evFilter.getSports().split(",")).stream()
                                                         .anyMatch( sport -> partidaOdds.getPartida().getSportKey().contains(sport.toLowerCase()));
 
          }
