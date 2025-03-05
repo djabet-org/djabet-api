@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.paukov.combinatorics.CombinatoricsFactory;
 import org.paukov.combinatorics.Generator;
@@ -46,7 +47,7 @@ public class BettingServiceImpl implements BettingService {
         }
 
         private boolean _diffSports(PartidaOdds partidaOdds, String blacklistedSports) {
-                        return Arrays.asList(blacklistedSports.split(",")).stream()
+                        return StringUtils.isBlank(blacklistedSports) ? true : Arrays.asList(blacklistedSports.split(",")).stream()
                                                         .noneMatch( sport -> partidaOdds.getPartida().getSportKey().contains(sport.toLowerCase()));
 
         }
