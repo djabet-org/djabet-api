@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hello.data.DashboardDTO;
+import hello.domain.ArbBet;
 import hello.domain.BettingService;
 import hello.domain.PartidaArbs;
 import hello.domain.PartidaEVs;
@@ -103,7 +104,7 @@ public class SportingBetController {
 
             List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
 
-            List<PartidaArbs> arbs = _bettingService.getArbs(odds, evFilter);
+            List<ArbBet> arbs = _bettingService.getArbs(odds, evFilter);
 
             String arbsJson = new ObjectMapper().writeValueAsString(arbs);
 

@@ -51,7 +51,6 @@ public class TheOddsAPI {
     private Logger _log = Logger.getLogger(getClass().getName());
 
     private final String SOCCER_SPORT = "soccer_brazil_campeonato";
-        private final static String MARKETS = "h2h,spreads,totals";
 
     public List<Torneio> getAllTorneios() throws IOException {
 
@@ -124,9 +123,9 @@ public class TheOddsAPI {
         }
     }
 
-    public List<PartidaOdds> getUpcomingOdds() throws JsonMappingException, JsonProcessingException {
+    public List<PartidaOdds> getUpcomingOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
             String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk&dateFormat=unix",
-                    theOddsApiBaseUrl, apiKey, MARKETS);
+                    theOddsApiBaseUrl, apiKey, evFilter.getMarkets());
 
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
             JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
@@ -193,7 +192,7 @@ public class TheOddsAPI {
                 .build();
     }
 
-    public List<Partida> getUpcomingPartidas() throws JsonMappingException, JsonProcessingException {
-        return getUpcomingOdds().stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
+    public List<Partida> getUpcomingPartidas(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
+        return getUpcomingOdds(evFilter).stream().map(PartidaOdds::getPartida).collect(Collectors.toList());
     }
 }

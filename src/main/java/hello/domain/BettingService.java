@@ -11,7 +11,7 @@ public interface BettingService {
 
     List<PartidaEVs> calculateEVs(List<PartidaOdds> partidasOdds, EVFilter evFilter);
 
-    List<PartidaArbs> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter);
+    List<ArbBet> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter);
 
     List<PartidaOdds> getOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException;
 

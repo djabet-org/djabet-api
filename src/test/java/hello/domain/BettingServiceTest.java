@@ -2,6 +2,7 @@ package hello.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,10 +47,10 @@ public class BettingServiceTest {
     public void itShouldGetOdds() throws JsonMappingException, JsonProcessingException {
         List<PartidaOdds> expecteOdds = _newPartidaOdds();
         EVFilter evFilter = EVFilter.builder().build();
-        when(theOddsAPI.getUpcomingOdds()).thenReturn(expecteOdds);
+        when(theOddsAPI.getUpcomingOdds(evFilter)).thenReturn(expecteOdds);
         List<PartidaOdds> odds = bettingService.getOdds(evFilter);
 
-        verify(theOddsAPI).getUpcomingOdds();
+        verify(theOddsAPI).getUpcomingOdds(evFilter);
         assertEquals(expecteOdds, odds);
     }
 
@@ -91,14 +92,14 @@ public class BettingServiceTest {
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2o")
-                .outcome(TEAM_HOME)
+                .outcome(TEAM_AWAY)
                 .odd(3.4)
                 .build();
 
         Odd odd4 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(TEAM_AWAY)
                 .odd(3.2)
                 .build();
 
@@ -113,11 +114,11 @@ public class BettingServiceTest {
                 .odds(List.of(odd1, odd2, odd4, odd5)).build();
 
         EVFilter evFilter = EVFilter.builder().markets("h2h").build();
-        List<PartidaArbs> result = bettingService.getArbs(List.of(partidaOdd), evFilter);
+        List<ArbBet> arbs = bettingService.getArbs(List.of(partidaOdd), evFilter);
+        ArbBet arbBet = arbs.get(0);
 
-        List<ArbBet> arbs = result.get(0).getArbs();
         assertEquals(1, arbs.size());
-        assertEquals(arbs.get(0).getMarket(), "h2h");
+        assertEquals(1, arbBet.getPartialArbs().size());
     }
 
     @Test
@@ -283,7 +284,7 @@ public class BettingServiceTest {
                 .odds(List.of(odd2, pinnacleOdd))
                 .build();
 
-        when(theOddsAPI.getUpcomingOdds()).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
+        when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
 
         List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).build());
 
@@ -328,7 +329,7 @@ public class BettingServiceTest {
                 .odds(List.of(odd2, pinnacleOdd))
                 .build();
 
-        when(theOddsAPI.getUpcomingOdds()).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
+        when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
 
         List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).build());
         List<PartidaOdds> allResult = bettingService.getOdds(EVFilter.builder().build());
@@ -374,14 +375,13 @@ public class BettingServiceTest {
         PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
                 .odds(List.of(odd1, odd2, odd3, odd4)).build();
 
-        List<PartidaArbs> result = bettingService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
-        List<ArbBet> arbs = result.get(0).getArbs();
-        System.out.println("creu "+result);
+        List<ArbBet> arbs = bettingService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
+        System.out.println("arbs "+arbs);
+        ArbBet arbBet = arbs.get(0);
 
-        assertEquals(1, result.size());
-        assertEquals(2, arbs.size());
-        assertEquals(3.5285285285285397, arbs.get(0).getArb(), 0.001);
-        assertEquals(38.3708968484055, arbs.get(1).getArb(),0.001);
+        assertEquals(1, arbs.size());
+        assertEquals(1, arbBet.getPartialArbs().size());
+        assertEquals("0.04%", arbBet.getPartialArbs().get(0).getRoi());
 
     }
 

@@ -4,8 +4,8 @@
       "sport_key": "baseball_mlb",
       "sport_title": "MLB",
       "commence_time": "prematch-date",
-      "home_team": "Colorado Rockies",
-      "away_team": "St. Louis Cardinals",
+      "home_team": "Creu",
+      "away_team": "Vrau",
       "bookmakers": [
         {
           "key": "sport888",
@@ -252,14 +252,14 @@
               "outcomes": [
                 {
                   "name": "Colorado Rockies",
-                  "price": 8.5,
+                  "price": 2.2,
                   "link": null,
                   "sid": null,
                   "bet_limit": null
                 },
                 {
                   "name": "St. Louis Cardinals",
-                  "price": 1.05,
+                  "price": 1.8,
                   "link": null,
                   "sid": null,
                   "bet_limit": null
@@ -307,14 +307,14 @@
               "outcomes": [
                 {
                   "name": "Colorado Rockies",
-                  "price": 9.25,
+                  "price": 2.3,
                   "link": null,
                   "sid": null,
                   "bet_limit": null
                 },
                 {
                   "name": "St. Louis Cardinals",
-                  "price": 1.05,
+                  "price": 1.7,
                   "link": null,
                   "sid": null,
                   "bet_limit": null
@@ -362,14 +362,14 @@
               "outcomes": [
                 {
                   "name": "Colorado Rockies",
-                  "price": 12.25,
+                  "price": 1,
                   "link": null,
                   "sid": null,
                   "bet_limit": null
                 },
                 {
                   "name": "St. Louis Cardinals",
-                  "price": 1.05,
+                  "price": 1,
                   "link": null,
                   "sid": null,
                   "bet_limit": null
@@ -401,68 +401,13 @@
               ]
             }
           ]
-        },
-        {
-          "key": "pinnacle",
-          "title": "Pinnacle",
-          "last_update": "2024-09-26T21:28:20Z",
-          "link": "https://www.pinnacle.com/en/baseball/mlb/st.-louis-cardinals-vs-colorado-rockies/1597931771/",
-          "sid": "1597931771",
-          "markets": [
-            {
-              "key": "h2h",
-              "last_update": "2024-09-26T21:28:20Z",
-              "link": null,
-              "sid": null,
-              "outcomes": [
-                {
-                  "name": "Colorado Rockies",
-                  "price": 3.95,
-                  "link": null,
-                  "sid": null,
-                  "bet_limit": null
-                },
-                {
-                  "name": "St. Louis Cardinals",
-                  "price": 1.24,
-                  "link": null,
-                  "sid": null,
-                  "bet_limit": null
-                }
-              ]
-            },
-            {
-              "key": "spreads",
-              "last_update": "2024-09-26T21:28:20Z",
-              "link": null,
-              "sid": null,
-              "outcomes": [
-                {
-                  "name": "Colorado Rockies",
-                  "price": 2.5,
-                  "point": 2.5,
-                  "link": null,
-                  "sid": null,
-                  "bet_limit": null
-                },
-                {
-                  "name": "St. Louis Cardinals",
-                  "price": 1.44,
-                  "point": -2.5,
-                  "link": null,
-                  "sid": null,
-                  "bet_limit": null
-                }
-              ]
-            }
-          ]
         }
       ]
     },
 {
       "id": "live-id",
       "sport_key": "soccer_italy_serie_a",
-      "sport_title": "MLB",
+      "sport_title": "soccer",
       "commence_time": "live-date",
       "home_team": "Sport",
       "away_team": "Santa",
