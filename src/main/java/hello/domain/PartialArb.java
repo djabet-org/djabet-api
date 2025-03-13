@@ -29,7 +29,7 @@ public class PartialArb {
 
     @JsonProperty("roi")
     public String getRoi(){
-        return String.format("%.2f%%", roi);
+        return String.format("%.2f%%", roi*100);
 
     }
 
