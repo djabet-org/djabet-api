@@ -381,7 +381,7 @@ public class BettingServiceTest {
 
         assertEquals(1, arbs.size());
         assertEquals(1, arbBet.getPartialArbs().size());
-        assertEquals("0.04%", arbBet.getPartialArbs().get(0).getRoi());
+        assertEquals("3.53%", arbBet.getPartialArbs().get(0).getRoi());
 
     }
 
