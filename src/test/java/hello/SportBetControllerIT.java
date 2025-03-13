@@ -111,13 +111,13 @@ public class SportBetControllerIT {
 
         // Perform the actual API request
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true&sports=baseball"))
+                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true&sports=baseball,soccer"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.length()", Matchers.is(1)))
+                .andExpect(jsonPath("$.length()", Matchers.is(2)))
                 // .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
                 .andExpect(jsonPath("$.[0].event", Matchers.is("Colorado Rockies vs St. Louis Cardinals")))
                 .andExpect(jsonPath("$.[0].market", Matchers.is("h2h")))
-                .andExpect(jsonPath("$.[0].arbs.[0].roi", Matchers.is("0.01%")))
+                .andExpect(jsonPath("$.[0].arbs.[0].roi", Matchers.is("0.97%")))
                 .andExpect(jsonPath("$.[0].arbs.[0].stake", Matchers.is("R$ 100")))
                 .andExpect(jsonPath("$.[0].arbs.[0].profit", Matchers.is("R$ 0.98")))
                 .andExpect(jsonPath("$.[0].arbs.[0].totalPayout", Matchers.is("R$ 100.98")))

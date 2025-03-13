@@ -411,7 +411,122 @@
       "commence_time": "live-date",
       "home_team": "Sport",
       "away_team": "Santa",
-      "bookmakers":[]
+      "bookmakers":[
+        {
+          "key": "betano",
+          "title": "Betano",
+          "last_update": "2024-09-26T21:28:20Z",
+          "link": null,
+          "sid": null,
+          "markets": [
+            {
+              "key": "h2h",
+              "last_update": "2024-09-26T21:28:20Z",
+              "link": null,
+              "sid": null,
+              "outcomes": [
+                {
+                  "name": "Sport",
+                  "price": 3.1,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                },
+                {
+                  "name": "Draw",
+                  "price": 3.5,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                },
+                {
+                  "name": "Santa",
+                  "price": 2.5,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "bet365",
+          "title": "Bet365",
+          "last_update": "2024-09-26T21:28:20Z",
+          "link": null,
+          "sid": null,
+          "markets": [
+            {
+              "key": "h2h",
+              "last_update": "2024-09-26T21:28:20Z",
+              "link": null,
+              "sid": null,
+              "outcomes": [
+                {
+                  "name": "Sport",
+                  "price": 3,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                },
+                {
+                  "name": "Draw",
+                  "price": 3.6,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                },
+                {
+                  "name": "Santa",
+                  "price": 2.6,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "nordicbet",
+          "title": "Nordic Bet",
+          "last_update": "2024-09-26T21:28:20Z",
+          "link": null,
+          "sid": null,
+          "markets": [
+            {
+              "key": "h2h",
+              "last_update": "2024-09-26T21:28:20Z",
+              "link": null,
+              "sid": null,
+              "outcomes": [
+                {
+                  "name": "Sport",
+                  "price": 3.2,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                },
+                {
+                  "name": "Draw",
+                  "price": 3.4,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                },
+                {
+                  "name": "Santa",
+                  "price": 2.4,
+                  "link": null,
+                  "sid": null,
+                  "bet_limit": null
+                }
+              ]
+            }
+          ]
+        }
+      ]
 },
 {
       "id": "live-id",
