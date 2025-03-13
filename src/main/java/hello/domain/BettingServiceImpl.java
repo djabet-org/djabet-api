@@ -228,11 +228,19 @@ public class BettingServiceImpl implements BettingService {
         }
 
         private boolean _diffBookmakers(ICombinatoricsVector<Odd> combination) {
-                return combination.getVector().stream().map(Odd::getBookmaker).distinct().count() > 1;
+                return combination.getVector().stream()
+                        .collect(Collectors.groupingBy(Odd::getBookmaker, Collectors.counting()))
+                        .values()
+                        .stream()
+                        .allMatch( k -> k == 1);
         }
 
         private boolean _diffOutcomes(ICombinatoricsVector<Odd> combination) {
-                return combination.getVector().stream().map(Odd::getOutcome).distinct().count() > 1;
+                return combination.getVector().stream()
+                        .collect(Collectors.groupingBy(Odd::getOutcome, Collectors.counting()))
+                        .values()
+                        .stream()
+                        .allMatch( k -> k == 1);
         }
 
         private double _totalProbability(ICombinatoricsVector<Odd> combination) {
