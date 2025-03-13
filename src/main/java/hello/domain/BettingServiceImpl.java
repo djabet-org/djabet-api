@@ -163,8 +163,14 @@ public class BettingServiceImpl implements BettingService {
 
         private ArbBet _toArbBet(PartidaOdds partidaOdds, String market, List<PartialArb> partialArbs) {
                 return ArbBet.builder()
-                                .partialArbs(partialArbs)
                                 .event(partidaOdds.getPartida().getName())
+                                .sportKey(partidaOdds.getPartida().getSportKey())
+                                .homeTeam(partidaOdds.getPartida().getHomeTeam())
+                                .awayTeam(partidaOdds.getPartida().getAwayTeam())
+                                .horario(partidaOdds.getPartida().getHorario())
+                                .torneio(partidaOdds.getPartida().getTorneio())
+                                .live(partidaOdds.getPartida().isLive())
+                                .partialArbs(partialArbs)
                                 .market(market)
                                 .build();
 
