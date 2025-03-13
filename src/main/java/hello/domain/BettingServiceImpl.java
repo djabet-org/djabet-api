@@ -153,7 +153,7 @@ public class BettingServiceImpl implements BettingService {
                         allArbBets.add(_toArbBet(partidaOdds, marketEntry.getKey(), partialArbs));
                 }
 
-                return allArbBets;
+                return allArbBets.stream().filter(arb -> !arb.getPartialArbs().isEmpty()).collect(Collectors.toList());
 
         }
 
