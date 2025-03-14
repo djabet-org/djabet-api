@@ -53,18 +53,19 @@ public class BettingServiceTest {
 
     @Test
     public void testGetValueBetsIfPositive() {
+    Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.0)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
@@ -78,32 +79,34 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetArbBetsFilteredByMarkets() {
+    Outcome outcomeHome = Outcome.builder().name(TEAM_HOME).build();
+    Outcome outcomeAway = Outcome.builder().name(TEAM_AWAY).build();
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcomeHome)
                 .odd(3.4)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2o")
-                .outcome(TEAM_AWAY)
+                .outcome(outcomeAway)
                 .odd(3.4)
                 .build();
 
         Odd odd4 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_AWAY)
+                .outcome(outcomeAway)
                 .odd(3.2)
                 .build();
 
         Odd odd5 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2o")
-                .outcome(TEAM_HOME)
+                .outcome(outcomeHome)
                 .odd(3.2)
                 .build();
 
@@ -120,32 +123,33 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetValueBetsFilteredByMarkets() {
+    Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.4)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2o")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.4)
                 .build();
 
         Odd odd4 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
         Odd odd5 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2o")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
@@ -162,25 +166,26 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetValueBetsFilteredByEvPercentage() {
+    Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.4)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.3)
                 .build();
 
         Odd pinnacleOdd = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
@@ -201,32 +206,33 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetValueBetsFilteredByOdd() {
+    Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.4)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.3)
                 .build();
 
         Odd odd3 = Odd.builder()
                 .bookmaker("Bookmaker C")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.8)
                 .build();
 
         Odd pinnacleOdd = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
@@ -247,27 +253,28 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetPrematchValueBets() throws Throwable {
+    Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
 
         Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.4)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.3)
                 .build();
 
         Odd pinnacleOdd = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
@@ -292,27 +299,28 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetLiveValueBets() throws Throwable {
+    Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
 
         Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.4)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.3)
                 .build();
 
         Odd pinnacleOdd = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcome)
                 .odd(3.2)
                 .build();
 
@@ -340,32 +348,34 @@ public class BettingServiceTest {
 
     @Test
     public void itShouldGetSurebets() {
+    Outcome outcomeAway = Outcome.builder().name(TEAM_AWAY).build();
+    Outcome outcomeHome= Outcome.builder().name(TEAM_HOME).build();
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bet365")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcomeHome)
                 .odd(1.22)
                 .build();
 
         Odd odd2 = Odd.builder()
                 .bookmaker("Bet365")
                 .market("h2h")
-                .outcome(TEAM_AWAY)
+                .outcome(outcomeAway)
                 .odd(3.7)
                 .build();
 
         Odd odd3 = Odd.builder()
                 .bookmaker("Betano")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcomeHome)
                 .odd(1.44)
                 .build();
 
         Odd odd4 = Odd.builder()
                 .bookmaker("Betano")
                 .market("h2h")
-                .outcome(TEAM_AWAY)
+                .outcome(outcomeAway)
                 .odd(2.89)
                 .build();
 
@@ -402,33 +412,34 @@ public class BettingServiceTest {
 
     private List<PartidaOdds> _newPartidaOdds() {
 
+    Outcome outcomeHome= Outcome.builder().name(TEAM_HOME).build();
         Partida partida = _newPartida("any-id",0);
 
         Odd odd1 = Odd.builder()
                 .bookmaker("Bookmaker A")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcomeHome)
                 .odd(3.2)
                 .build();
 
         Odd odd4 = Odd.builder()
                 .bookmaker("Bookmaker B")
                 .market("h2h")
-                .outcome("Nautico")
+                .outcome(outcomeHome)
                 .odd(1.5)
                 .build();
 
         Odd pinnacleOdd1 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(TEAM_HOME)
+                .outcome(outcomeHome)
                 .odd(1.4)
                 .build();
 
         Odd pinnacleOdd2 = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome("Nautico")
+                .outcome(outcomeHome)
                 .odd(2.1)
                 .build();
 

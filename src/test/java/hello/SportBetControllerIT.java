@@ -178,8 +178,47 @@ public class SportBetControllerIT {
         mockServer.verify();
 
     }
-    private String _formatDate(Instant time) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-        return time.atZone(ZoneId.systemDefault()).format(formatter);
+
+    @Test
+    public void itShouldGetTotalsArbs() throws Exception {
+        File filejson = ResourceUtils.getFile("classpath:get-totals-odds.json");
+
+        JsonNode json = new ObjectMapper().readTree(filejson);
+
+        mockServer
+                .expect(MockRestRequestMatchers
+                        .requestTo(new URI(
+                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=totals&regions=eu&dateFormat=unix")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(
+                        json.toString(),
+                        MediaType.APPLICATION_JSON));
+
+        // Perform the actual API request
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/sports/arbs?bankroll=100&markets=totals&maxArb=8"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.length()", Matchers.is(2)))
+                // .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
+                .andExpect(jsonPath("$.[0].event", Matchers.is("Colorado Rockies vs St. Louis Cardinals")))
+                .andExpect(jsonPath("$.[0].market", Matchers.is("h2h")))
+                .andExpect(jsonPath("$.[0].arbs.[0].roi", Matchers.is("0.97%")))
+                .andExpect(jsonPath("$.[0].arbs.[0].stake", Matchers.is("R$ 100")))
+                .andExpect(jsonPath("$.[0].arbs.[0].profit", Matchers.is("R$ 0.98")))
+                .andExpect(jsonPath("$.[0].arbs.[0].totalPayout", Matchers.is("R$ 100.98")))
+                .andExpect(jsonPath("$.[0].arbs.[0].books.length()", Matchers.is(2)))
+                // .andExpect(jsonPath("$.[0].partida.id", Matchers.is("live-id")))
+                // .andExpect(jsonPath("$.[0].partida.sportKey", Matchers.is("baseball_mlb")))
+                // .andExpect(jsonPath("$.[0].partida.homeTeam", Matchers.is("Colorado Rockies")))
+                // .andExpect(jsonPath("$.[0].partida.awayTeam", Matchers.is("St. Louis Cardinals")))
+                // .andExpect(jsonPath("$.[0].partida.torneio", Matchers.is("MLB")))
+                // .andExpect(jsonPath("$.[0].partida.live", Matchers.is(true)))
+                // .andExpect(jsonPath("$.[0].arbs.[0].arbPercentage", Matchers.is("7.59%")))
+                // .andExpect(jsonPath("$.[0].arbs.[0].stake", Matchers.is(100.0)))
+                // .andExpect(jsonPath("$.[0].arbs.[0].profit", Matchers.is("R$ 8.21")))
+                .andDo(MockMvcResultHandlers.print());
+
+        mockServer.verify();
+
     }
 }

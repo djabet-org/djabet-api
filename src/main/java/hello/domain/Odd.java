@@ -9,5 +9,9 @@ public class Odd {
     private String bookmaker;
     private String market;
     private double odd;
-    private String outcome;
+    private Outcome outcome;
+
+    public String getOutcome() {
+        return outcome.getOutcome();
+    }
 }

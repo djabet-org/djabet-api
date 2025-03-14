@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import hello.domain.Odd;
 import hello.domain.Partida;
 import hello.domain.PartidaOdds;
-import hello.dto.Outcome;
+import hello.domain.Outcome;
 
 public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
 
@@ -33,7 +33,7 @@ public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
                     String market = marketNode.get("key").asText();
                     for (JsonNode outcomeNode : marketNode.get("outcomes")) {
                         Outcome outcome = _toOutcome(outcomeNode);
-                        Odd odd = Odd.builder().odd(outcome.getOdd()).outcome(outcome.getName()).bookmaker(bookmaker)
+                        Odd odd = Odd.builder().odd(outcome.getOdd()).outcome(outcome).bookmaker(bookmaker)
                                 .market(market).build();
                         odds.add(odd);
                     
@@ -51,10 +51,12 @@ public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
     }
 
     private Outcome _toOutcome(JsonNode outcomeNode) {
+        double totalsPoint = outcomeNode.has("point") ? outcomeNode.get("point").asDouble() : 0;
 
         return Outcome.builder()
                 .name(outcomeNode.get("name").asText() + " " + totalsPoint)
                 .odd(outcomeNode.get("price").asDouble())
+                .totalsPoint(totalsPoint)
                 .build();
     }
 
