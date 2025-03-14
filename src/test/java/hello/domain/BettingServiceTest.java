@@ -373,7 +373,6 @@ public class BettingServiceTest {
                 .odds(List.of(odd1, odd2, odd3, odd4)).build();
 
         List<ArbBet> arbs = bettingService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
-        System.out.println("arbs "+arbs);
         ArbBet arbBet = arbs.get(0);
 
         assertEquals(1, arbs.size());

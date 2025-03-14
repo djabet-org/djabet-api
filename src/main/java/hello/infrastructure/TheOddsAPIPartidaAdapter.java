@@ -51,16 +51,6 @@ public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
     }
 
     private Outcome _toOutcome(JsonNode outcomeNode) {
-        String totalsPoint = outcomeNode.get("point") != null ? Double.toString(outcomeNode.get("point").asDouble())
-                : "";
-        // String totalsPointString = totalsPoint == 0? "":Double.toString(totalsPoint);
-        // String totalsPoint = Optional.ofNullable(outcomeNode.get("point").asDouble())
-        // .filter(Objects::nonNull)
-        // .map(pointDouble -> {
-        // System.out.println(pointDouble);
-        // return pointDouble.toString();
-        // })
-        // .orElse("");
 
         return Outcome.builder()
                 .name(outcomeNode.get("name").asText() + " " + totalsPoint)

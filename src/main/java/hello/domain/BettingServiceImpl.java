@@ -53,22 +53,6 @@ public class BettingServiceImpl implements BettingService {
                                 .collect(Collectors.toList());
         }
 
-        private boolean _diffSports(PartidaOdds partidaOdds, String blacklistedSports) {
-                return StringUtils.isBlank(blacklistedSports) ? true
-                                : Arrays.asList(blacklistedSports.split(",")).stream()
-                                                .noneMatch(sport -> partidaOdds.getPartida().getSportKey()
-                                                                .contains(sport.toLowerCase()));
-
-        }
-
-        private boolean _matchesSportsFilter(PartidaOdds partidaOdds, EVFilter evFilter) {
-                return StringUtil.isBlank(evFilter.getSports()) ? true
-                                : Arrays.asList(evFilter.getSports().split(",")).stream()
-                                                .anyMatch(sport -> partidaOdds.getPartida().getSportKey()
-                                                                .contains(sport.toLowerCase()));
-
-        }
-
         private PartidaEVs _getEVs(double bankroll, PartidaOdds partidaOdds, EVFilter evFilter) {
                 Map<String, Map<String, List<Odd>>> winProbabilityBasedOnPinnacle = partidaOdds.getOdds().stream()
                                 .filter(odd -> odd.getBookmaker().equals("pinnacle"))
