@@ -66,7 +66,7 @@ public class TheOddsAPI {
     public List<PartidaOdds> getOdds(String sportkey, String partidaId, String markets) {
         try {
             String url = String.format(
-                    "https://api.the-odds-api.com/v4/sports/%s/events/%s/odds?apiKey=%s&markets=%s&regions=eu,uk",
+                    "https://api.the-odds-api.com/v4/sports/%s/events/%s/odds?apiKey=%s&markets=%s&regions=eu",
                     sportkey, partidaId, apiKey, markets, bookmakers);
 
             JsonNode oddsNode = _httpClient.get(url);
@@ -78,7 +78,7 @@ public class TheOddsAPI {
     }
 
     public List<PartidaOdds> getUpcomingOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
-            String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu,uk&dateFormat=unix",
+            String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu&dateFormat=unix",
                     theOddsApiBaseUrl, apiKey, evFilter.getMarkets());
 
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
