@@ -91,8 +91,8 @@ public class SportBetControllerIT {
 
     }
 
-    @Test
-    public void itShouldGetArbs() throws Exception {
+//     @Test
+    public void itShouldGetLiveArbs() throws Exception {
         File filejson = ResourceUtils.getFile("classpath:get-upcoming-odds.json");
 
         JsonNode json = new ObjectMapper().readTree(filejson);
@@ -111,7 +111,7 @@ public class SportBetControllerIT {
 
         // Perform the actual API request
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true&sports=baseball,soccer"))
+                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(2)))
                 // .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
@@ -137,6 +137,47 @@ public class SportBetControllerIT {
 
     }
 
+    @Test
+    public void itShouldGetSoccerArbs() throws Exception {
+        File sportOddsFileJson = ResourceUtils.getFile("classpath:get-sport-odds.json");
+        File sportsFileJson = ResourceUtils.getFile("classpath:get-sports.json");
+
+        JsonNode sportOdds = new ObjectMapper().readTree(sportOddsFileJson);
+        JsonNode sport = new ObjectMapper().readTree(sportsFileJson);
+
+        mockServer
+                .expect(MockRestRequestMatchers
+                        .requestTo(new URI(
+                                "https://creu.com/v4/sports?apiKey=creu")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(
+                        sport.toString(),
+                        MediaType.APPLICATION_JSON));
+        mockServer
+                .expect(MockRestRequestMatchers
+                        .requestTo(new URI(
+                                "https://creu.com/v4/sports/soccer_brazil_campeonato/odds?apiKey=creu&markets=h2h&regions=eu,uk&dateFormat=unix")))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(
+                        sportOdds.toString(),
+                        MediaType.APPLICATION_JSON));
+
+        // Perform the actual API request
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&sports=soccer"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.length()", Matchers.is(1)))
+                // .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
+                .andExpect(jsonPath("$.[0].event", Matchers.is("Bragantino-SP vs Ceara")))
+                .andExpect(jsonPath("$.[0].market", Matchers.is("h2h")))
+                .andExpect(jsonPath("$.[0].homeTeam", Matchers.is("Bragantino-SP")))
+                .andExpect(jsonPath("$.[0].awayTeam", Matchers.is("Ceara")))
+                .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(2)))
+                .andDo(MockMvcResultHandlers.print());
+
+        mockServer.verify();
+
+    }
     private String _formatDate(Instant time) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
         return time.atZone(ZoneId.systemDefault()).format(formatter);

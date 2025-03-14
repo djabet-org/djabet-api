@@ -16,5 +16,6 @@ public class EVFilter {
     private String sports;
     private String notSports;
     private Boolean live;
+    private Boolean upcoming;
     private Boolean prematch;
 }

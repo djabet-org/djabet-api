@@ -1,0 +1,10 @@
+[
+  {
+    "key": "soccer_brazil_campeonato",
+    "group": "Soccer",
+    "title": "UEFA Nations League",
+    "description": "UEFA Nations League",
+    "active": true,
+    "has_outrights": false
+  }
+]

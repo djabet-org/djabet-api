@@ -45,8 +45,8 @@ public class BettingServiceImpl implements BettingService {
         @Override
         public List<ArbBet> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter) {
                 return partidasOdds.stream()
-                                .filter(partidaOdds -> _matchesSportsFilter(partidaOdds, evFilter))
-                                .filter(partidaOdds -> _diffSports(partidaOdds, evFilter.getNotSports()))
+                                // .filter(partidaOdds -> _matchesSportsFilter(partidaOdds, evFilter))
+                                // .filter(partidaOdds -> _diffSports(partidaOdds, evFilter.getNotSports()))
                                 .map(partidaOdds -> _getArbs(partidaOdds, evFilter))
                                 .flatMap(List::stream)
                                 // .peek(System.out::println)
@@ -132,13 +132,19 @@ public class BettingServiceImpl implements BettingService {
         }
 
         @Override
-        public List<PartidaOdds> getOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
+        public List<PartidaOdds> getOdds(EVFilter evFilter) throws Throwable {
+                if (evFilter.getUpcoming()) {
                 return theOddsAPI.getUpcomingOdds(evFilter).stream()
                                 .filter(partidaOdd -> Objects.isNull(evFilter.getLive()) ? true
                                                 : partidaOdd.getPartida().isLive())
                                 .filter(partidaOdd -> Objects.isNull(evFilter.getPrematch()) ? true
                                                 : !partidaOdd.getPartida().isLive())
                                 .collect(Collectors.toList());
+                } else {
+                        return theOddsAPI.getSportOdds(evFilter).stream()
+                                .collect(Collectors.toList());
+
+                }
         }
 
         private List<ArbBet> _getArbs(PartidaOdds partidaOdds, EVFilter evFilter) {

@@ -18,9 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
 
@@ -44,9 +41,9 @@ public class BettingServiceTest {
     }
 
     @Test
-    public void itShouldGetOdds() throws JsonMappingException, JsonProcessingException {
+    public void itShouldGetOdds() throws Throwable {
         List<PartidaOdds> expecteOdds = _newPartidaOdds();
-        EVFilter evFilter = EVFilter.builder().build();
+        EVFilter evFilter = EVFilter.builder().upcoming(true).build();
         when(theOddsAPI.getUpcomingOdds(evFilter)).thenReturn(expecteOdds);
         List<PartidaOdds> odds = bettingService.getOdds(evFilter);
 
@@ -74,7 +71,7 @@ public class BettingServiceTest {
         PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
                 .odds(List.of(odd1, odd2)).build();
 
-        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().build());
+        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().upcoming(false).build());
 
         assertEquals(0, result.size());
     }
@@ -249,7 +246,7 @@ public class BettingServiceTest {
     }
 
     @Test
-    public void itShouldGetPrematchValueBets() throws JsonMappingException, JsonProcessingException {
+    public void itShouldGetPrematchValueBets() throws Throwable {
 
         Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
 
@@ -284,17 +281,17 @@ public class BettingServiceTest {
                 .odds(List.of(odd2, pinnacleOdd))
                 .build();
 
-        when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
+        when(theOddsAPI.getSportOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
 
-        List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).build());
+        List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).upcoming(false).build());
 
-    assertEquals(1, prematchResult.size());
+    assertEquals(2, prematchResult.size());
 
     assertEquals("prematch-id", prematchResult.get(0).getPartida().getId());
     }
 
     @Test
-    public void itShouldGetLiveValueBets() throws JsonMappingException, JsonProcessingException {
+    public void itShouldGetLiveValueBets() throws Throwable {
 
         Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
 
@@ -331,8 +328,8 @@ public class BettingServiceTest {
 
         when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
 
-        List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).build());
-        List<PartidaOdds> allResult = bettingService.getOdds(EVFilter.builder().build());
+        List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).upcoming(true).build());
+        List<PartidaOdds> allResult = bettingService.getOdds(EVFilter.builder().upcoming(true).build());
 
     assertEquals(1, liveResult.size());
     assertEquals(2, allResult.size());

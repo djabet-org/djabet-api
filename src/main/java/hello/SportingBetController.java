@@ -71,9 +71,9 @@ public class SportingBetController {
             List<PartidaEVs> evs = _bettingService.calculateEVs(odds, evFilter);
             String evsAsJson = new ObjectMapper().writeValueAsString(evs);
             return ResponseEntity.ok().body(evsAsJson);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
@@ -97,6 +97,7 @@ public class SportingBetController {
                     .markets(markets.orElse("h2h"))
                     .sports(sports.orElse(""))
                     .live(live.orElse(null))
+                    .upcoming(!sports.isPresent())
                     .prematch(prematch.orElse(null))
                     .notSports(notSports.orElse(""))
                     .build();
@@ -109,9 +110,9 @@ public class SportingBetController {
             String arbsJson = new ObjectMapper().writeValueAsString(arbs);
 
             return ResponseEntity.ok().body(arbsJson);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }

@@ -13,7 +13,7 @@ public interface BettingService {
 
     List<ArbBet> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter);
 
-    List<PartidaOdds> getOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException;
+    List<PartidaOdds> getOdds(EVFilter evFilter) throws Throwable;
 
     
 }
