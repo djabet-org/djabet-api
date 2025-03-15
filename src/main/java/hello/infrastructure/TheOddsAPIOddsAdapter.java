@@ -17,7 +17,7 @@ import hello.domain.Partida;
 import hello.domain.PartidaOdds;
 import hello.domain.Outcome;
 
-public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
+public class TheOddsAPIOddsAdapter implements PartidaAdapter {
 
     private Logger _log = Logger.getLogger(getClass().getName());
 

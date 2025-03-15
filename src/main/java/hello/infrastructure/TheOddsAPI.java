@@ -70,7 +70,7 @@ public class TheOddsAPI {
                     sportkey, partidaId, apiKey, markets, bookmakers);
 
             JsonNode oddsNode = _httpClient.get(url);
-            return new TheOddsAPIPartidaAdapter().adapt(oddsNode);
+            return new TheOddsAPIOddsAdapter().adapt(oddsNode);
         } catch (IOException e) {
             System.out.println(e.getMessage());
             return null;
@@ -83,7 +83,7 @@ public class TheOddsAPI {
 
             ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
             JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
-            return new TheOddsAPIPartidaAdapter().adapt(odds);
+            return new TheOddsAPIOddsAdapter().adapt(odds);
     }
 
     public List<PartidaOdds> getSportOdds(EVFilter evFilter) throws Throwable {
@@ -111,7 +111,7 @@ public class TheOddsAPI {
             
                         ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
                             JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
-                return new TheOddsAPIPartidaAdapter().adapt(odds);
+                return new TheOddsAPIOddsAdapter().adapt(odds);
             } catch (JsonMappingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
