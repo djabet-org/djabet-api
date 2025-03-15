@@ -8,6 +8,7 @@ import lombok.Data;
 public class Odd {
     private String bookmaker;
     private String market;
+    private String link;
     private double odd;
     private Outcome outcome;
 

@@ -119,7 +119,6 @@ public class BettingServiceImpl implements BettingService {
         public List<PartidaOdds> getOdds(EVFilter evFilter) throws Throwable {
                 if (evFilter.getLive()) {
                 return theOddsAPI.getUpcomingOdds(evFilter).stream()
-                                .peek(System.out::println)
                                 .filter( odd -> _filterSports(odd.getPartida().getSportKey(), evFilter.getSports()))
                                 .collect(Collectors.toList());
                 } else {
@@ -251,6 +250,7 @@ public class BettingServiceImpl implements BettingService {
                 double stakeOdd = stake * (impliedProbability / 100) / (totalProbability / 100);
                 return BookmakerArb.builder()
                                 .bookmaker(odd.getBookmaker())
+                                .link(odd.getLink())
                                 .outcome(odd.getOutcome())
                                 .odd(odd.getOdd())
                                 .stake(String.format("R$ %.2f", stakeOdd))

@@ -122,6 +122,7 @@ public class SportBetControllerIT {
                 .andExpect(jsonPath("$.[0].arbs.[0].profit", Matchers.is("R$ 0.98")))
                 .andExpect(jsonPath("$.[0].arbs.[0].totalPayout", Matchers.is("R$ 100.98")))
                 .andExpect(jsonPath("$.[0].arbs.[0].books.length()", Matchers.is(2)))
+                .andExpect(jsonPath("$.[0].arbs.[0].books.[0].link", Matchers.is("link-sport888-partida")))
                 // .andExpect(jsonPath("$.[0].partida.id", Matchers.is("live-id")))
                 // .andExpect(jsonPath("$.[0].partida.sportKey", Matchers.is("baseball_mlb")))
                 // .andExpect(jsonPath("$.[0].partida.homeTeam", Matchers.is("Colorado Rockies")))

@@ -12,6 +12,7 @@ public class BookmakerArb {
 
     private String stake;
     private String bookmaker;
+    private String link;
     private String outcome;
     private double odd; 
     @JsonIgnore

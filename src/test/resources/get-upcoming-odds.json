@@ -11,7 +11,7 @@
           "key": "sport888",
           "title": "888sport",
           "last_update": "2024-09-26T21:28:20Z",
-          "link": null,
+          "link": "link-sport888-partida",
           "sid": null,
           "markets": [
             {
@@ -66,7 +66,7 @@
           "key": "nordicbet",
           "title": "Nordic Bet",
           "last_update": "2024-09-26T21:28:20Z",
-          "link": null,
+          "link": "link-nordicbet-partida",
           "sid": null,
           "markets": [
             {

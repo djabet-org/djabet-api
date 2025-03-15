@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,12 +30,18 @@ public class TheOddsAPIPartidaAdapter implements PartidaAdapter {
             Partida partida = _toPartida(oddNode);
             for (JsonNode bookmakerNode : oddNode.get("bookmakers")) {
                 String bookmaker = bookmakerNode.get("key").asText();
+                Optional<JsonNode> optLink = Optional.ofNullable(bookmakerNode.get("link"));
                 for (JsonNode marketNode : bookmakerNode.get("markets")) {
                     String market = marketNode.get("key").asText();
                     for (JsonNode outcomeNode : marketNode.get("outcomes")) {
                         Outcome outcome = _toOutcome(outcomeNode);
-                        Odd odd = Odd.builder().odd(outcome.getOdd()).outcome(outcome).bookmaker(bookmaker)
-                                .market(market).build();
+                        Odd odd = Odd.builder()
+                            .odd(outcome.getOdd())
+                            .outcome(outcome)
+                            .bookmaker(bookmaker)
+                            .market(market)
+                            .link(optLink.map(JsonNode::asText).orElse(""))
+                            .build();
                         odds.add(odd);
                     
                 }
