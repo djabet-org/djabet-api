@@ -103,7 +103,7 @@ public class SportBetControllerIT {
         mockServer
                 .expect(MockRestRequestMatchers
                         .requestTo(new URI(
-                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=h2h&regions=eu,uk&dateFormat=unix")))
+                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=h2h&regions=eu&dateFormat=unix")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andRespond(MockRestResponseCreators.withSuccess(
                         json.toString().replace("prematch-date", Long.toString((preMatchTime)).replace("live-date", Long.toString(liveTime))),

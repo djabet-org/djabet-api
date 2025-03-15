@@ -10,6 +10,7 @@ public class Odd {
     private String market;
     private String link;
     private double odd;
+    private double totalsPoint;
     private Outcome outcome;
 
     public String getOutcome() {
