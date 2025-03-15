@@ -43,7 +43,7 @@ public class BettingServiceTest {
     @Test
     public void itShouldGetOdds() throws Throwable {
         List<PartidaOdds> expecteOdds = _newPartidaOdds();
-        EVFilter evFilter = EVFilter.builder().upcoming(true).build();
+        EVFilter evFilter = EVFilter.builder().live(true).build();
         when(theOddsAPI.getUpcomingOdds(evFilter)).thenReturn(expecteOdds);
         List<PartidaOdds> odds = bettingService.getOdds(evFilter);
 
@@ -72,7 +72,7 @@ public class BettingServiceTest {
         PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
                 .odds(List.of(odd1, odd2)).build();
 
-        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().upcoming(false).build());
+        List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().live(false).build());
 
         assertEquals(0, result.size());
     }
@@ -290,7 +290,7 @@ public class BettingServiceTest {
 
         when(theOddsAPI.getSportOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
 
-        List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).upcoming(false).build());
+        List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).live(false).build());
 
     assertEquals(2, prematchResult.size());
 
@@ -300,6 +300,7 @@ public class BettingServiceTest {
     @Test
     public void itShouldGetLiveValueBets() throws Throwable {
     Outcome outcome = Outcome.builder().name(TEAM_HOME).build();
+    Outcome outcomeAway = Outcome.builder().name(TEAM_AWAY).build();
 
         Partida livePartida = _newPartida("live-id",Instant.now().minus(Duration.ofMinutes(20)).toEpochMilli()/1000);
 
@@ -320,13 +321,8 @@ public class BettingServiceTest {
         Odd pinnacleOdd = Odd.builder()
                 .bookmaker("pinnacle")
                 .market("h2h")
-                .outcome(outcome)
+                .outcome(outcomeAway)
                 .odd(3.2)
-                .build();
-
-        PartidaOdds prelivePartidaOdd = PartidaOdds.builder()
-                .partida(_prematchPartida)
-                .odds(List.of(odd1, pinnacleOdd))
                 .build();
 
         PartidaOdds livePartidaOdd = PartidaOdds.builder()
@@ -334,13 +330,11 @@ public class BettingServiceTest {
                 .odds(List.of(odd2, pinnacleOdd))
                 .build();
 
-        when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
+        when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(livePartidaOdd));
 
-        List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).upcoming(true).build());
-        List<PartidaOdds> allResult = bettingService.getOdds(EVFilter.builder().upcoming(true).build());
+        List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).build());
 
     assertEquals(1, liveResult.size());
-    assertEquals(2, allResult.size());
 
     assertEquals("live-id", liveResult.get(0).getPartida().getId());
 

@@ -117,7 +117,7 @@ public class BettingServiceImpl implements BettingService {
 
         @Override
         public List<PartidaOdds> getOdds(EVFilter evFilter) throws Throwable {
-                if (evFilter.getUpcoming()) {
+                if (evFilter.getLive()) {
                 return theOddsAPI.getUpcomingOdds(evFilter).stream()
                                 .filter(partidaOdd -> Objects.isNull(evFilter.getLive()) ? true
                                                 : partidaOdd.getPartida().isLive())

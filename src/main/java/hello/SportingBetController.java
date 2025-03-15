@@ -96,7 +96,7 @@ public class SportingBetController {
                     .minOdd(minOdd.orElse(0.0))
                     .markets(markets.orElse("h2h"))
                     .sports(sports.orElse(""))
-                    .live(live.orElse(null))
+                    .live(live.orElse(true))
                     .upcoming(!sports.isPresent())
                     .prematch(prematch.orElse(null))
                     .notSports(notSports.orElse(""))
