@@ -119,10 +119,8 @@ public class BettingServiceImpl implements BettingService {
         public List<PartidaOdds> getOdds(EVFilter evFilter) throws Throwable {
                 if (evFilter.getLive()) {
                 return theOddsAPI.getUpcomingOdds(evFilter).stream()
-                                .filter(partidaOdd -> Objects.isNull(evFilter.getLive()) ? true
-                                                : partidaOdd.getPartida().isLive())
-                                .filter(partidaOdd -> Objects.isNull(evFilter.getPrematch()) ? true
-                                                : !partidaOdd.getPartida().isLive())
+                                .peek(System.out::println)
+                                .filter( odd -> _filterSports(odd.getPartida().getSportKey(), evFilter.getSports()))
                                 .collect(Collectors.toList());
                 } else {
                         return theOddsAPI.getSportOdds(evFilter).stream()
@@ -149,6 +147,10 @@ public class BettingServiceImpl implements BettingService {
 
         private boolean _filterMarkets(String market, String marketsList) {
                 return Stream.of(marketsList.split(",")).anyMatch(marketInFilter -> marketInFilter.equals(market));
+        }
+
+        private boolean _filterSports(String sport, String sportsList) {
+                return sportsList.isBlank() ? true : Stream.of(sportsList.split(",")).anyMatch(sportInFilter -> sport.toLowerCase().contains(sportInFilter.toLowerCase()));
         }
 
         private ArbBet _toArbBet(PartidaOdds partidaOdds, String market, List<PartialArb> partialArbs) {

@@ -13,7 +13,7 @@ public class EVFilter {
     private double minOdd;
     @Builder.Default private double maxOdd = Double.MAX_VALUE;
     @Builder.Default private String markets = "h2h";
-    private String sports;
+    @Builder.Default private String sports = "";
     private String notSports;
     private Boolean live;
     private Boolean upcoming;
