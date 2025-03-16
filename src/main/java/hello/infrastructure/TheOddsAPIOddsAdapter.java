@@ -59,9 +59,11 @@ public class TheOddsAPIOddsAdapter implements PartidaAdapter {
 
     private Outcome _toOutcome(JsonNode outcomeNode) {
         double totalsPoint = outcomeNode.has("point") ? outcomeNode.get("point").asDouble() : 0;
+        String name = totalsPoint > 0 ? outcomeNode.get("name").asText() + " " + totalsPoint 
+                : outcomeNode.get("name").asText();
 
         return Outcome.builder()
-                .name(outcomeNode.get("name").asText() + " " + totalsPoint)
+                .name(name)
                 .odd(outcomeNode.get("price").asDouble())
                 .totalsPoint(totalsPoint)
                 .build();
