@@ -3,26 +3,27 @@ package hello.infrastructure;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import hello.domain.Odd;
 import hello.domain.Partida;
 import hello.domain.PartidaOdds;
+import hello.model.EVFilter;
 import hello.domain.Outcome;
 
-public class TheOddsAPIOddsAdapter implements PartidaAdapter {
+public class TheOddsAPIOddsAdapter implements TheOddsAPIOddsAdapterService {
 
     private Logger _log = Logger.getLogger(getClass().getName());
 
     @Override
-    public List<PartidaOdds> adapt(JsonNode oddsJsonNode) {
+    public List<PartidaOdds> adapt(JsonNode oddsJsonNode, EVFilter evFilter) {
         List<PartidaOdds> partidasOdds = new ArrayList<>();
 
         for (JsonNode oddNode : oddsJsonNode) {

@@ -18,11 +18,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import hello.domain.services.EVService;
+import hello.domain.services.OddsService;
+import hello.domain.services.impl.ArbsBettingServiceImpl;
+import hello.domain.services.impl.EVBettingServiceImpl;
+import hello.domain.services.impl.OddsServiceImpl;
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
 
 @ExtendWith(MockitoExtension.class)
-public class BettingServiceTest {
+public class EVBettingServiceTest {
 
     private static final String TEAM_HOME = "Sport";
     private static final String TEAM_AWAY = "Nautico";
@@ -31,24 +36,16 @@ public class BettingServiceTest {
     private TheOddsAPI theOddsAPI;
 
     @InjectMocks
-    private BettingService bettingService = new BettingServiceImpl();
+    private EVService bettingService = new EVBettingServiceImpl();
+
+    @InjectMocks
+    private OddsService oddsService = new OddsServiceImpl();
 
     private Partida _prematchPartida;
 
     @BeforeEach
     public void setup() {
         _prematchPartida = _newPartida("prematch-id", Instant.now().plus(Duration.ofHours(2)).toEpochMilli()/1000);
-    }
-
-    @Test
-    public void itShouldGetOdds() throws Throwable {
-        List<PartidaOdds> expecteOdds = _newPartidaOdds();
-        EVFilter evFilter = EVFilter.builder().live(true).build();
-        when(theOddsAPI.getUpcomingOdds(evFilter)).thenReturn(expecteOdds);
-        List<PartidaOdds> odds = bettingService.getOdds(evFilter);
-
-        verify(theOddsAPI).getUpcomingOdds(evFilter);
-        assertEquals(expecteOdds, odds);
     }
 
     @Test
@@ -75,50 +72,6 @@ public class BettingServiceTest {
         List<PartidaEVs> result = bettingService.calculateEVs(List.of(partidaOdd), EVFilter.builder().live(false).build());
 
         assertEquals(0, result.size());
-    }
-
-    @Test
-    public void itShouldGetArbBetsFilteredByMarkets() {
-    Outcome outcomeHome = Outcome.builder().name(TEAM_HOME).build();
-    Outcome outcomeAway = Outcome.builder().name(TEAM_AWAY).build();
-
-        Odd odd1 = Odd.builder()
-                .bookmaker("Bookmaker A")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(3.4)
-                .build();
-
-        Odd odd2 = Odd.builder()
-                .bookmaker("Bookmaker B")
-                .market("h2o")
-                .outcome(outcomeAway)
-                .odd(3.4)
-                .build();
-
-        Odd odd4 = Odd.builder()
-                .bookmaker("pinnacle")
-                .market("h2h")
-                .outcome(outcomeAway)
-                .odd(3.2)
-                .build();
-
-        Odd odd5 = Odd.builder()
-                .bookmaker("pinnacle")
-                .market("h2o")
-                .outcome(outcomeHome)
-                .odd(3.2)
-                .build();
-
-        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
-                .odds(List.of(odd1, odd2, odd4, odd5)).build();
-
-        EVFilter evFilter = EVFilter.builder().markets("h2h").build();
-        List<ArbBet> arbs = bettingService.getArbs(List.of(partidaOdd), evFilter);
-        ArbBet arbBet = arbs.get(0);
-
-        assertEquals(1, arbs.size());
-        assertEquals(1, arbBet.getPartialArbs().size());
     }
 
     @Test
@@ -290,7 +243,9 @@ public class BettingServiceTest {
 
         when(theOddsAPI.getSportOdds(any())).thenReturn(List.of(prelivePartidaOdd, livePartidaOdd));
 
-        List<PartidaOdds> prematchResult = bettingService.getOdds(EVFilter.builder().prematch(true).live(false).build());
+        EVFilter evFilter = EVFilter.builder().prematch(true).live(false).build();
+
+        List<PartidaOdds> prematchResult = oddsService.getOdds(evFilter);
 
     assertEquals(2, prematchResult.size());
 
@@ -332,56 +287,13 @@ public class BettingServiceTest {
 
         when(theOddsAPI.getUpcomingOdds(any())).thenReturn(List.of(livePartidaOdd));
 
-        List<PartidaOdds> liveResult = bettingService.getOdds(EVFilter.builder().live(true).build());
+        EVFilter evFilter = EVFilter.builder().live(true).build();
+
+        List<PartidaOdds> liveResult = oddsService.getOdds(evFilter);
 
     assertEquals(1, liveResult.size());
 
     assertEquals("live-id", liveResult.get(0).getPartida().getId());
-
-    }
-
-    @Test
-    public void itShouldGetSurebets() {
-    Outcome outcomeAway = Outcome.builder().name(TEAM_AWAY).build();
-    Outcome outcomeHome= Outcome.builder().name(TEAM_HOME).build();
-
-        Odd odd1 = Odd.builder()
-                .bookmaker("Bet365")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(1.22)
-                .build();
-
-        Odd odd2 = Odd.builder()
-                .bookmaker("Bet365")
-                .market("h2h")
-                .outcome(outcomeAway)
-                .odd(3.7)
-                .build();
-
-        Odd odd3 = Odd.builder()
-                .bookmaker("Betano")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(1.44)
-                .build();
-
-        Odd odd4 = Odd.builder()
-                .bookmaker("Betano")
-                .market("h2h")
-                .outcome(outcomeAway)
-                .odd(2.89)
-                .build();
-
-        PartidaOdds partidaOdd = PartidaOdds.builder().partida(_prematchPartida)
-                .odds(List.of(odd1, odd2, odd3, odd4)).build();
-
-        List<ArbBet> arbs = bettingService.getArbs(List.of(partidaOdd), EVFilter.builder().build());
-        ArbBet arbBet = arbs.get(0);
-
-        assertEquals(1, arbs.size());
-        assertEquals(1, arbBet.getPartialArbs().size());
-        assertEquals("3.53%", arbBet.getPartialArbs().get(0).getRoi());
 
     }
 
@@ -403,44 +315,4 @@ public class BettingServiceTest {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
         return formatter.format(instant);
     }
-
-    private List<PartidaOdds> _newPartidaOdds() {
-
-    Outcome outcomeHome= Outcome.builder().name(TEAM_HOME).build();
-        Partida partida = _newPartida("any-id",0);
-
-        Odd odd1 = Odd.builder()
-                .bookmaker("Bookmaker A")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(3.2)
-                .build();
-
-        Odd odd4 = Odd.builder()
-                .bookmaker("Bookmaker B")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(1.5)
-                .build();
-
-        Odd pinnacleOdd1 = Odd.builder()
-                .bookmaker("pinnacle")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(1.4)
-                .build();
-
-        Odd pinnacleOdd2 = Odd.builder()
-                .bookmaker("pinnacle")
-                .market("h2h")
-                .outcome(outcomeHome)
-                .odd(2.1)
-                .build();
-
-        PartidaOdds partidaOdd = PartidaOdds.builder().partida(partida)
-                .odds(List.of(odd1, odd4, pinnacleOdd1, pinnacleOdd2)).build();
-
-        return List.of(partidaOdd);
-    }
-
 }

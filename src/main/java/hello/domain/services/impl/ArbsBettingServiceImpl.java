@@ -1,4 +1,4 @@
-package hello.domain;
+package hello.domain.services.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,23 +15,16 @@ import org.paukov.combinatorics.ICombinatoricsVector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import hello.infrastructure.TheOddsAPI;
+import hello.domain.ArbBet;
+import hello.domain.BookmakerArb;
+import hello.domain.Odd;
+import hello.domain.PartialArb;
+import hello.domain.PartidaOdds;
+import hello.domain.services.ArbService;
 import hello.model.EVFilter;
-import hello.service.Helper;
 
 @Service
-public class BettingServiceImpl implements BettingService {
-
-        @Autowired
-        private TheOddsAPI theOddsAPI;
-
-        @Override
-        public List<PartidaEVs> calculateEVs(List<PartidaOdds> partidaOdds, EVFilter evFilter) {
-                return partidaOdds.stream()
-                                .map(partidaOdd -> _getEVs(100.0, partidaOdd, evFilter))
-                                .filter(partidaEVs -> partidaEVs.getEvs().size() > 0)
-                                .collect(Collectors.toList());
-        }
+public class ArbsBettingServiceImpl implements ArbService {
 
         @Override
         public List<ArbBet> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter) {
@@ -39,74 +32,6 @@ public class BettingServiceImpl implements BettingService {
                                 .map(partidaOdds -> _getArbs(partidaOdds, evFilter))
                                 .flatMap(List::stream)
                                 .collect(Collectors.toList());
-        }
-
-        private PartidaEVs _getEVs(double bankroll, PartidaOdds partidaOdds, EVFilter evFilter) {
-                Map<String, Map<String, List<Odd>>> winProbabilityBasedOnPinnacle = partidaOdds.getOdds().stream()
-                                .filter(odd -> odd.getBookmaker().equals("pinnacle"))
-                                .collect(Collectors.groupingBy(Odd::getMarket, Collectors.groupingBy(Odd::getOutcome)));
-
-                List<ValueBet> evs = partidaOdds.getOdds().stream()
-                                .collect(Collectors.groupingBy(Odd::getMarket))
-                                .entrySet().stream()
-                                .flatMap(marketsMap -> marketsMap.getValue().stream())
-                                .map(marketOdd -> _toEV(bankroll, partidaOdds, marketOdd,
-                                                winProbabilityBasedOnPinnacle))
-                                .filter(ev -> ev.getEv() > evFilter.getMinEv() && ev.getEv() < evFilter.getMaxEv())
-                                .filter(ev -> ev.getOdd() > evFilter.getMinOdd() && ev.getOdd() < evFilter.getMaxOdd())
-                                .filter(ev -> StringUtil.isBlank(evFilter.getMarkets()) ? true
-                                                : evFilter.getMarkets().contains(ev.getMarket()))
-                                .filter(ev -> !Helper.getExcludedBookmakers().stream()
-                                                .anyMatch(bookmaker -> bookmaker.equals(ev.getBookmaker())))
-                                .collect(Collectors.toList());
-
-                return PartidaEVs.builder().partida(partidaOdds.getPartida()).evs(evs).build();
-        }
-
-        private ValueBet _toEV(double bankroll, PartidaOdds partidaOdds, Odd marketOdd,
-                        Map<String, Map<String, List<Odd>>> baseProbabilityMap) {
-                if (!baseProbabilityMap.containsKey(marketOdd.getMarket())
-                                || !baseProbabilityMap.get(marketOdd.getMarket()).containsKey(marketOdd.getOutcome())) {
-                        return ValueBet.builder().build();
-                }
-
-                double pinnacleOdd = baseProbabilityMap.get(marketOdd.getMarket()).get(marketOdd.getOutcome()).get(0)
-                                .getOdd();
-
-                double stake = 100;
-                double pinnacleImpliedProb = 1 / pinnacleOdd;
-                double yourImpliedProb = 1 / marketOdd.getOdd();
-                double potentialProfit = stake * (marketOdd.getOdd() - 1);
-                double probabilityOfLosing = 1 - pinnacleImpliedProb;
-
-                if (pinnacleImpliedProb <= yourImpliedProb) {
-                        return ValueBet.builder().build();
-                }
-
-                double ev = (pinnacleImpliedProb * potentialProfit) - (probabilityOfLosing * stake);
-
-                return ValueBet.builder()
-                                .evPercentage(String.format("%.2f%%", ev * 100))
-                                .ev(ev)
-                                .market(marketOdd.getMarket())
-                                .bookmaker(marketOdd.getBookmaker())
-                                .odd(marketOdd.getOdd())
-                                .outcome(marketOdd.getOutcome())
-                                .sharpOdd(pinnacleOdd)
-                                .build();
-        }
-
-        @Override
-        public List<PartidaOdds> getOdds(EVFilter evFilter) throws Throwable {
-                if (evFilter.getLive()) {
-                return theOddsAPI.getUpcomingOdds(evFilter).stream()
-                                .filter( odd -> _filterSports(odd.getPartida().getSportKey(), evFilter.getSports()))
-                                .collect(Collectors.toList());
-                } else {
-                        return theOddsAPI.getSportOdds(evFilter).stream()
-                                .collect(Collectors.toList());
-
-                }
         }
 
         private List<ArbBet> _getArbs(PartidaOdds partidaOdds, EVFilter evFilter) {
@@ -127,10 +52,6 @@ public class BettingServiceImpl implements BettingService {
 
         private boolean _filterMarkets(String market, String marketsList) {
                 return Stream.of(marketsList.split(",")).anyMatch(marketInFilter -> marketInFilter.equals(market));
-        }
-
-        private boolean _filterSports(String sport, String sportsList) {
-                return sportsList.isBlank() ? true : Stream.of(sportsList.split(",")).anyMatch(sportInFilter -> sport.toLowerCase().contains(sportInFilter.toLowerCase()));
         }
 
         private ArbBet _toArbBet(PartidaOdds partidaOdds, String market, List<PartialArb> partialArbs) {
@@ -181,14 +102,14 @@ public class BettingServiceImpl implements BettingService {
                                 .map(odd -> _oddToBookmakerArb(odd, stake, totalProbability))
                                 .collect(Collectors.toList());
 
-                double roi = 1-bookmakersArbs.stream().mapToDouble( arb -> 1/arb.getOdd()).sum();
+                double roi = 1 - bookmakersArbs.stream().mapToDouble(arb -> 1 / arb.getOdd()).sum();
 
                 return PartialArb.builder()
-                        .stake("R$ 100")
-                        .roi(roi)
-                        .profit(bookmakersArbs.get(0).getPayoutValue()-stake)
-                        .totalPayout(bookmakersArbs.get(0).getPayoutValue())
-                        .bookmakerArbs(bookmakersArbs).build();
+                                .stake("R$ 100")
+                                .roi(roi)
+                                .profit(bookmakersArbs.get(0).getPayoutValue() - stake)
+                                .totalPayout(bookmakersArbs.get(0).getPayoutValue())
+                                .bookmakerArbs(bookmakersArbs).build();
 
         }
 
@@ -198,18 +119,18 @@ public class BettingServiceImpl implements BettingService {
 
         private boolean _diffBookmakers(ICombinatoricsVector<Odd> combination) {
                 return combination.getVector().stream()
-                        .collect(Collectors.groupingBy(Odd::getBookmaker, Collectors.counting()))
-                        .values()
-                        .stream()
-                        .allMatch( k -> k == 1);
+                                .collect(Collectors.groupingBy(Odd::getBookmaker, Collectors.counting()))
+                                .values()
+                                .stream()
+                                .allMatch(k -> k == 1);
         }
 
         private boolean _diffOutcomes(ICombinatoricsVector<Odd> combination) {
                 return combination.getVector().stream()
-                        .collect(Collectors.groupingBy(Odd::getOutcome, Collectors.counting()))
-                        .values()
-                        .stream()
-                        .allMatch( k -> k == 1);
+                                .collect(Collectors.groupingBy(Odd::getOutcome, Collectors.counting()))
+                                .values()
+                                .stream()
+                                .allMatch(k -> k == 1);
         }
 
         private double _totalProbability(ICombinatoricsVector<Odd> combination) {

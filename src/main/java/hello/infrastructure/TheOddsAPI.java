@@ -51,26 +51,26 @@ public class TheOddsAPI {
     private Logger _log = Logger.getLogger(getClass().getName());
 
     public List<Torneio> getAllTorneios(EVFilter evFilter) throws Throwable {
-            String url = String.format( "%s?apiKey=%s",
-                    theOddsApiBaseUrl, apiKey, evFilter.getMarkets());
+        String url = String.format("%s?apiKey=%s",
+                theOddsApiBaseUrl, apiKey, evFilter.getMarkets());
 
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
 
-            JsonNode response = new ObjectMapper().readTree(responseEntity.getBody());
+        JsonNode response = new ObjectMapper().readTree(responseEntity.getBody());
         return _toStream(response)
                 .map(this::_toTorneio)
                 .filter(torneio -> !torneio.isHasOutrights())
                 .collect(Collectors.toList());
     }
 
-    public List<PartidaOdds> getOdds(String sportkey, String partidaId, String markets) {
+    public List<PartidaOdds> getEventOdds(String sportkey, String partidaId, String markets) {
         try {
             String url = String.format(
                     "https://api.the-odds-api.com/v4/sports/%s/events/%s/odds?apiKey=%s&markets=%s&regions=eu",
                     sportkey, partidaId, apiKey, markets, bookmakers);
 
             JsonNode oddsNode = _httpClient.get(url);
-            return new TheOddsAPIOddsAdapter().adapt(oddsNode);
+            return new TheOddsAPIOddsAdapter().adapt(oddsNode, EVFilter.builder().build());
         } catch (IOException e) {
             System.out.println(e.getMessage());
             return null;
@@ -78,49 +78,54 @@ public class TheOddsAPI {
     }
 
     public List<PartidaOdds> getUpcomingOdds(EVFilter evFilter) throws JsonMappingException, JsonProcessingException {
-            String url = String.format( "%s/upcoming/odds?apiKey=%s&markets=%s&regions=eu&dateFormat=unix",
-                    theOddsApiBaseUrl, apiKey, evFilter.getMarkets());
+        StringBuilder urlBuilder = new StringBuilder(theOddsApiBaseUrl);
+        urlBuilder.append("/upcoming/odds?apiKey="+apiKey);
+        urlBuilder.append("&regions=eu");
+        urlBuilder.append("&dateFormat=unix");
+        urlBuilder.append("&markets="+evFilter.getMarkets());
+        if (!evFilter.getBookmakers().isBlank()) {
+            urlBuilder.append("&bookmakers="+evFilter.getBookmakers());
+        }
 
-            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-            JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
-            return new TheOddsAPIOddsAdapter().adapt(odds);
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(urlBuilder.toString(), String.class);
+        JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
+        return new TheOddsAPIOddsAdapter().adapt(odds, evFilter);
     }
 
     public List<PartidaOdds> getSportOdds(EVFilter evFilter) throws Throwable {
-            String sport = evFilter.getSports();
-            try {
-                return getAllTorneios(evFilter).stream()
+        String sport = evFilter.getSports();
+        try {
+            return getAllTorneios(evFilter).stream()
                     .filter(torneio -> torneio.getGroup().toLowerCase().contains(sport.toLowerCase()))
                     .limit(3)
-                    .map( Torneio::getKey)
+                    .map(Torneio::getKey)
                     .peek(System.out::println)
-                    .map( sportKey -> _getOdd(sportKey, evFilter.getMarkets()))
+                    .map(sportKey -> _getOdd(sportKey, evFilter.getMarkets()))
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                return Collections.emptyList();
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     private List<PartidaOdds> _getOdd(String sport, String markets) {
-                        try {
-                        String url = String.format( "%s/%s/odds?apiKey=%s&markets=%s&regions=eu,uk&dateFormat=unix",
-                                theOddsApiBaseUrl, sport, apiKey, markets);
-            
-                        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-                            JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
-                return new TheOddsAPIOddsAdapter().adapt(odds);
-            } catch (JsonMappingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (JsonProcessingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            String url = String.format("%s/%s/odds?apiKey=%s&markets=%s&regions=eu&dateFormat=unix",
+                    theOddsApiBaseUrl, sport, apiKey, markets);
 
-            return Collections.emptyList();
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+            JsonNode odds = new ObjectMapper().readTree(responseEntity.getBody());
+            return new TheOddsAPIOddsAdapter().adapt(odds, EVFilter.builder().build());
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return Collections.emptyList();
 
     }
 
@@ -140,6 +145,7 @@ public class TheOddsAPI {
                 "onexbet").stream().collect(Collectors.joining(","));
     }
 
+
     private Torneio _toTorneio(JsonNode torneioNode) {
         return Torneio.builder()
                 .key(torneioNode.get("key").asText())
@@ -152,15 +158,16 @@ public class TheOddsAPI {
     }
 
     private Outcome _toOutcome(JsonNode outcomeNode) {
-        String totalsPoint = outcomeNode.get("point") != null ? Double.toString(outcomeNode.get("point").asDouble()) : "";
+        String totalsPoint = outcomeNode.get("point") != null ? Double.toString(outcomeNode.get("point").asDouble())
+                : "";
         // String totalsPointString = totalsPoint == 0? "":Double.toString(totalsPoint);
         // String totalsPoint = Optional.ofNullable(outcomeNode.get("point").asDouble())
-        //         .filter(Objects::nonNull)
-        //         .map(pointDouble -> {
-        //             System.out.println(pointDouble);
-        //             return pointDouble.toString();
-        //         })
-        //         .orElse("");
+        // .filter(Objects::nonNull)
+        // .map(pointDouble -> {
+        // System.out.println(pointDouble);
+        // return pointDouble.toString();
+        // })
+        // .orElse("");
 
         return Outcome.builder()
                 .name(outcomeNode.get("name").asText() + " " + totalsPoint)
@@ -174,7 +181,6 @@ public class TheOddsAPI {
                 .outcomes(_toStream(marketJsonNode.get("outcomes")).map(this::_toOutcome).collect(Collectors.toList()))
                 .build();
     }
-
 
     private Bookmaker _toBookmaker(JsonNode bookmaker) {
         return Bookmaker.builder()

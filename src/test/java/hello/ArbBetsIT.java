@@ -66,26 +66,26 @@ public class ArbBetsIT {
 
         JsonNode json = new ObjectMapper().readTree(filejson);
 
-        long preMatchTime = Instant.now().plus(Duration.ofDays(2)).toEpochMilli()/1000;
         long liveTime = Instant.now().minus(Duration.ofHours(2)).toEpochMilli()/1000;
 
         mockServer
                 .expect(MockRestRequestMatchers
                         .requestTo(new URI(
-                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&markets=h2h&regions=eu&dateFormat=unix")))
+                                "https://creu.com/v4/sports/upcoming/odds?apiKey=creu&regions=eu&dateFormat=unix&markets=h2h&bookmakers=nordicbet2")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andRespond(MockRestResponseCreators.withSuccess(
-                        json.toString().replace("prematch-date", Long.toString((preMatchTime)).replace("live-date", Long.toString(liveTime))),
+                        json.toString().replace("live-date", Long.toString(liveTime)),
                         MediaType.APPLICATION_JSON));
 
         // Perform the actual API request
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true&sports=baseball"))
+                .get("/api/sports/arbs?bankroll=100&markets=h2h&maxArb=8&live=true&sports=baseball&bookmakers=nordicbet2"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(1)))
                 // .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
                 .andExpect(jsonPath("$.[0].event", Matchers.is("Colorado Rockies vs St. Louis Cardinals")))
                 .andExpect(jsonPath("$.[0].market", Matchers.is("h2h")))
+                .andExpect(jsonPath("$.[0].arbs.length()", Matchers.is(1)))
                 .andExpect(jsonPath("$.[0].arbs.[0].roi", Matchers.is("0.97%")))
                 .andExpect(jsonPath("$.[0].arbs.[0].stake", Matchers.is("R$ 100")))
                 .andExpect(jsonPath("$.[0].arbs.[0].profit", Matchers.is("R$ 0.98")))
@@ -126,7 +126,7 @@ public class ArbBetsIT {
         mockServer
                 .expect(MockRestRequestMatchers
                         .requestTo(new URI(
-                                "https://creu.com/v4/sports/soccer_brazil_campeonato/odds?apiKey=creu&markets=h2h&regions=eu,uk&dateFormat=unix")))
+                                "https://creu.com/v4/sports/soccer_brazil_campeonato/odds?apiKey=creu&markets=h2h&regions=eu&dateFormat=unix")))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andRespond(MockRestResponseCreators.withSuccess(
                         sportOdds.toString(),

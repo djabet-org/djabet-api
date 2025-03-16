@@ -29,10 +29,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hello.data.DashboardDTO;
 import hello.domain.ArbBet;
-import hello.domain.BettingService;
 import hello.domain.PartidaArbs;
 import hello.domain.PartidaEVs;
 import hello.domain.PartidaOdds;
+import hello.domain.services.ArbService;
+import hello.domain.services.EVService;
+import hello.domain.services.OddsService;
 import hello.dto.Partida;
 import hello.dto.ValueBet;
 import hello.model.EVFilter;
@@ -44,7 +46,13 @@ import hello.service.ValueBetService;
 public class SportingBetController {
 
     @Autowired
-    private BettingService _bettingService;
+    private OddsService _oddsService;
+
+    @Autowired
+    private ArbService _arbService;
+
+    @Autowired
+    private EVService _evService;
 
     private Logger _log = Logger.getLogger(getClass().getName());
 
@@ -67,8 +75,8 @@ public class SportingBetController {
                     .live(live.orElse(null))
                     .prematch(prematch.orElse(null))
                     .build();
-            List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
-            List<PartidaEVs> evs = _bettingService.calculateEVs(odds, evFilter);
+            List<PartidaOdds> odds = _oddsService.getOdds(evFilter);
+            List<PartidaEVs> evs = _evService.calculateEVs(odds, evFilter);
             String evsAsJson = new ObjectMapper().writeValueAsString(evs);
             return ResponseEntity.ok().body(evsAsJson);
         } catch (Throwable e) {
@@ -86,6 +94,7 @@ public class SportingBetController {
             @RequestParam("prematch") Optional<Boolean> prematch,
             @RequestParam("sports") Optional<String> sports,
             @RequestParam("notSports") Optional<String> notSports,
+            @RequestParam("bookmakers") Optional<String> bookmakers,
             @RequestParam("markets") Optional<String> markets) {
         try {
             _log.info("New request - Arbs!");
@@ -96,6 +105,7 @@ public class SportingBetController {
                     .minOdd(minOdd.orElse(0.0))
                     .markets(markets.orElse("h2h"))
                     .sports(sports.orElse(""))
+                    .bookmakers(bookmakers.orElse(""))
                     .live(live.orElse(true))
                     .upcoming(!sports.isPresent())
                     .prematch(prematch.orElse(null))
@@ -103,9 +113,9 @@ public class SportingBetController {
                     .build();
 
 
-            List<PartidaOdds> odds = _bettingService.getOdds(evFilter);
+            List<PartidaOdds> odds = _oddsService.getOdds(evFilter);
 
-            List<ArbBet> arbs = _bettingService.getArbs(odds, evFilter);
+            List<ArbBet> arbs = _arbService.getArbs(odds, evFilter);
 
             String arbsJson = new ObjectMapper().writeValueAsString(arbs);
 

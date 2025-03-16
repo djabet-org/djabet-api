@@ -15,6 +15,7 @@ public class EVFilter {
     @Builder.Default private String markets = "h2h";
     @Builder.Default private String sports = "";
     private String notSports;
+    private String bookmakers;
     private Boolean live;
     private Boolean upcoming;
     private Boolean prematch;

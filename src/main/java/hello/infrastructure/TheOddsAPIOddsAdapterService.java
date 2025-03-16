@@ -5,9 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import hello.domain.PartidaOdds;
-import hello.dto.Odd;
-import hello.dto.Partida;
+import hello.model.EVFilter;
 
-public interface PartidaAdapter {
-    List<PartidaOdds> adapt(JsonNode node);
+public interface TheOddsAPIOddsAdapterService {
+    List<PartidaOdds> adapt(JsonNode node, EVFilter filter);
 }
