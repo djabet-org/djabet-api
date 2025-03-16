@@ -1,28 +1,19 @@
 package hello.domain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.StringUtil;
 import org.paukov.combinatorics.CombinatoricsFactory;
 import org.paukov.combinatorics.Generator;
 import org.paukov.combinatorics.ICombinatoricsVector;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.parser.Part;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 import hello.infrastructure.TheOddsAPI;
 import hello.model.EVFilter;
@@ -45,11 +36,8 @@ public class BettingServiceImpl implements BettingService {
         @Override
         public List<ArbBet> getArbs(List<PartidaOdds> partidasOdds, EVFilter evFilter) {
                 return partidasOdds.stream()
-                                // .filter(partidaOdds -> _matchesSportsFilter(partidaOdds, evFilter))
-                                // .filter(partidaOdds -> _diffSports(partidaOdds, evFilter.getNotSports()))
                                 .map(partidaOdds -> _getArbs(partidaOdds, evFilter))
                                 .flatMap(List::stream)
-                                // .peek(System.out::println)
                                 .collect(Collectors.toList());
         }
 
@@ -64,15 +52,10 @@ public class BettingServiceImpl implements BettingService {
                                 .flatMap(marketsMap -> marketsMap.getValue().stream())
                                 .map(marketOdd -> _toEV(bankroll, partidaOdds, marketOdd,
                                                 winProbabilityBasedOnPinnacle))
-                                // .peek(System.out::println)
                                 .filter(ev -> ev.getEv() > evFilter.getMinEv() && ev.getEv() < evFilter.getMaxEv())
                                 .filter(ev -> ev.getOdd() > evFilter.getMinOdd() && ev.getOdd() < evFilter.getMaxOdd())
                                 .filter(ev -> StringUtil.isBlank(evFilter.getMarkets()) ? true
                                                 : evFilter.getMarkets().contains(ev.getMarket()))
-                                // .filter(valueBet -> !valueBet.getBookmaker().equals("pinnacle"))
-                                // .filter( valueBet -> !Helper.didStarted(valueBet.getPartida().getHorario()))
-                                // .filter(valueBet ->
-                                // Helper.happensInTwoDays(valueBet.getPartida().getHorario()))
                                 .filter(ev -> !Helper.getExcludedBookmakers().stream()
                                                 .anyMatch(bookmaker -> bookmaker.equals(ev.getBookmaker())))
                                 .collect(Collectors.toList());
@@ -110,8 +93,6 @@ public class BettingServiceImpl implements BettingService {
                                 .odd(marketOdd.getOdd())
                                 .outcome(marketOdd.getOutcome())
                                 .sharpOdd(pinnacleOdd)
-                                // .betAmmount(Helper.calculateBetAmount(baseProbability, bankroll,
-                                // marketOdd.getOdd()))
                                 .build();
         }
 
@@ -166,15 +147,6 @@ public class BettingServiceImpl implements BettingService {
                                 .build();
 
         }
-
-        // private List<ArbBet> _filter(List<ArbBet> allArbBets, EVFilter evFilter) {
-        //         return allArbBets.stream()
-        //                         .filter(arb -> arb.getProfit() > 0)
-        //                         .filter(arb -> arb.getArb() > evFilter.getMinArb())
-        //                         .filter(arb -> arb.getArb() < evFilter.getMaxArb())
-        //                         .filter(arb -> evFilter.getMarkets().contains(arb.getMarket()))
-        //                         .collect(Collectors.toList());
-        // }
 
         private List<PartialArb> _calculateArbs(Entry<String, List<Odd>> marketEntry) {
                 List<Odd> odds = marketEntry.getValue();
